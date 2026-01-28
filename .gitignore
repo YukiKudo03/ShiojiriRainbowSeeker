@@ -1,0 +1,83 @@
+# ShiojiriRainbowSeeker Root .gitignore
+
+# ===================
+# OS Generated Files
+# ===================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===================
+# IDE / Editor
+# ===================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ===================
+# Claude Code / MCP
+# ===================
+.claude/
+.mcp.json
+
+# ===================
+# Logs
+# ===================
+*.log
+audit.log
+
+# ===================
+# Environment Files
+# ===================
+.env
+.env.local
+.env.*.local
+
+# ===================
+# Temporary Files
+# ===================
+*.tmp
+*.temp
+*.bak
+
+# ===================
+# Build Outputs (redundant safety)
+# ===================
+# Note: These are also in subdirectory .gitignore files
+# but listed here for extra safety
+
+# Mobile native builds (managed by Expo)
+mobile/ios/
+mobile/android/
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+
+# Backend
+backend/log/
+backend/tmp/
+backend/storage/
+backend/coverage/
+backend/vendor/bundle/
+
+# ===================
+# Credentials / Secrets
+# ===================
+*.pem
+*.key
+*.p12
+*.p8
+*.jks
+*.mobileprovision
+credentials.json
+service-account.json

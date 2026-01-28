@@ -1,0 +1,117 @@
+# Active Storage Configuration
+# ============================
+# This file configures storage services for uploaded files (photos, thumbnails, etc.)
+#
+# Service Types:
+# - test: Disk storage for test environment (ephemeral)
+# - local: Disk storage for development environment
+# - amazon: S3 storage for production (with CloudFront CDN)
+#
+# Environment variables required for production (amazon service):
+# - AWS_ACCESS_KEY_ID: AWS access key
+# - AWS_SECRET_ACCESS_KEY: AWS secret key
+# - AWS_REGION: AWS region (e.g., ap-northeast-1 for Tokyo)
+# - AWS_S3_BUCKET: S3 bucket name
+# - AWS_CLOUDFRONT_HOST: CloudFront distribution domain (optional, for CDN)
+
+# Test environment - uses temporary disk storage
+test:
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>
+
+# Development environment - uses local disk storage
+local:
+  service: Disk
+  root: <%= Rails.root.join("storage") %>
+
+# Production environment - AWS S3 with CloudFront CDN
+# Supports direct upload from mobile app for optimal performance
+amazon:
+  service: S3
+  access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+  secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+  region: <%= ENV.fetch('AWS_REGION', 'ap-northeast-1') %>
+  bucket: <%= ENV['AWS_S3_BUCKET'] %>
+  # Enable public access for images (served via CloudFront)
+  public: true
+  # CloudFront CDN for fast global image delivery
+  # Set AWS_CLOUDFRONT_HOST to your CloudFront distribution domain (e.g., d1234567890.cloudfront.net)
+  <% if ENV['AWS_CLOUDFRONT_HOST'].present? %>
+  url_options:
+    host: <%= ENV['AWS_CLOUDFRONT_HOST'] %>
+    protocol: https
+  <% end %>
+
+# Mirror service for backup (optional)
+# Writes to both local and S3 simultaneously
+# mirror:
+#   service: Mirror
+#   primary: amazon
+#   mirrors: [ local ]
+
+# ============================
+# S3 Bucket Configuration Notes
+# ============================
+#
+# 1. Create S3 bucket with the following settings:
+#    - Region: ap-northeast-1 (Tokyo) for low latency in Japan
+#    - Block all public access: OFF (for public image URLs via CloudFront)
+#    - Bucket versioning: Enabled (optional, for backup)
+#
+# 2. S3 Bucket Policy (allow CloudFront access):
+#    {
+#      "Version": "2012-10-17",
+#      "Statement": [
+#        {
+#          "Sid": "AllowCloudFrontServicePrincipalReadOnly",
+#          "Effect": "Allow",
+#          "Principal": {
+#            "Service": "cloudfront.amazonaws.com"
+#          },
+#          "Action": "s3:GetObject",
+#          "Resource": "arn:aws:s3:::YOUR_BUCKET_NAME/*",
+#          "Condition": {
+#            "StringEquals": {
+#              "AWS:SourceArn": "arn:aws:cloudfront::YOUR_ACCOUNT_ID:distribution/YOUR_DISTRIBUTION_ID"
+#            }
+#          }
+#        }
+#      ]
+#    }
+#
+# 3. CORS Configuration (for direct upload from mobile):
+#    [
+#      {
+#        "AllowedHeaders": ["*"],
+#        "AllowedMethods": ["PUT", "POST", "DELETE", "GET"],
+#        "AllowedOrigins": ["*"],
+#        "ExposeHeaders": ["ETag"]
+#      }
+#    ]
+#
+# 4. CloudFront Distribution:
+#    - Origin: S3 bucket
+#    - Origin Access: Origin Access Control (OAC)
+#    - Viewer Protocol Policy: Redirect HTTP to HTTPS
+#    - Cache Policy: CachingOptimized
+#    - Price Class: Use Asia Pacific for Japan focus
+#
+# 5. IAM User/Role Permissions:
+#    {
+#      "Version": "2012-10-17",
+#      "Statement": [
+#        {
+#          "Effect": "Allow",
+#          "Action": [
+#            "s3:PutObject",
+#            "s3:GetObject",
+#            "s3:DeleteObject",
+#            "s3:ListBucket"
+#          ],
+#          "Resource": [
+#            "arn:aws:s3:::YOUR_BUCKET_NAME",
+#            "arn:aws:s3:::YOUR_BUCKET_NAME/*"
+#          ]
+#        }
+#      ]
+#    }

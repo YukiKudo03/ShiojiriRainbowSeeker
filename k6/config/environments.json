@@ -1,0 +1,37 @@
+{
+  "environments": {
+    "local": {
+      "baseUrl": "http://localhost:3000",
+      "apiVersion": "v1",
+      "description": "Local development environment"
+    },
+    "staging": {
+      "baseUrl": "https://staging-api.shiojiri-rainbow.example.com",
+      "apiVersion": "v1",
+      "description": "Staging environment for pre-production testing"
+    },
+    "production": {
+      "baseUrl": "https://api.shiojiri-rainbow.example.com",
+      "apiVersion": "v1",
+      "description": "Production environment (use with caution)"
+    }
+  },
+  "default": "local",
+  "testUsers": {
+    "standard": {
+      "email": "loadtest-user@example.com",
+      "password": "LoadTest123!",
+      "description": "Standard test user for general load testing"
+    },
+    "premium": {
+      "email": "loadtest-premium@example.com",
+      "password": "LoadTest123!",
+      "description": "Premium test user with elevated permissions"
+    },
+    "admin": {
+      "email": "loadtest-admin@example.com",
+      "password": "LoadTest123!",
+      "description": "Admin test user for admin endpoint testing"
+    }
+  }
+}

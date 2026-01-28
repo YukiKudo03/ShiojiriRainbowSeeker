@@ -1,0 +1,50 @@
+#!/bin/bash
+# =============================================================================
+# Post-App-Boot Hook - Runs after each container starts
+# =============================================================================
+# This hook runs on the server after a container has started.
+# Use it for verification and logging.
+# =============================================================================
+
+set -e
+
+echo "=> Container started successfully"
+
+# Get container info
+CONTAINER_ID=${KAMAL_CONTAINER_ID:-"unknown"}
+ROLE=${KAMAL_ROLE:-"unknown"}
+
+echo "   Container ID: $CONTAINER_ID"
+echo "   Role: $ROLE"
+
+# For web containers, verify the health endpoint
+if [ "$ROLE" = "web" ]; then
+    echo "   Waiting for health endpoint..."
+    sleep 5
+
+    # Try to access health endpoint from within container network
+    MAX_ATTEMPTS=10
+    ATTEMPT=1
+
+    while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+        if curl -sf http://localhost:3000/up > /dev/null 2>&1; then
+            echo "   Health check passed!"
+            break
+        fi
+
+        if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+            echo "WARNING: Health endpoint not responding after $MAX_ATTEMPTS attempts"
+            echo "   Container may still be initializing..."
+        fi
+
+        sleep 2
+        ATTEMPT=$((ATTEMPT + 1))
+    done
+fi
+
+# For job containers, verify Solid Queue is running
+if [ "$ROLE" = "job" ]; then
+    echo "   Solid Queue worker started"
+fi
+
+echo "=> Container boot complete!"

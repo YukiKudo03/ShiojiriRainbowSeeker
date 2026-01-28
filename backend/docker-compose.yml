@@ -1,0 +1,129 @@
+# =============================================================================
+# Shiojiri Rainbow Seeker Backend - Docker Compose (Development)
+# =============================================================================
+# Local development environment with PostgreSQL/PostGIS
+#
+# Usage:
+#   docker compose up -d              # Start all services
+#   docker compose logs -f api        # View API logs
+#   docker compose exec api bin/rails console  # Rails console
+#   docker compose down               # Stop all services
+#   docker compose down -v            # Stop and remove volumes
+# =============================================================================
+
+name: shiojiri-rainbow-seeker
+
+services:
+  # ===========================================================================
+  # PostgreSQL with PostGIS
+  # ===========================================================================
+  db:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: shiojiri-rainbow-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-shiojiri}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shiojiri_dev_password}
+      POSTGRES_DB: shiojiri_rainbow_seeker_development
+      # Create additional databases for Solid Cache/Queue/Cable
+      POSTGRES_MULTIPLE_DATABASES: >-
+        shiojiri_rainbow_seeker_development_cache,
+        shiojiri_rainbow_seeker_development_queue,
+        shiojiri_rainbow_seeker_development_cable
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shiojiri} -d shiojiri_rainbow_seeker_development"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ===========================================================================
+  # Rails API (Development Mode)
+  # ===========================================================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build  # Use build stage for development (includes dev tools)
+    container_name: shiojiri-rainbow-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Rails environment
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: "true"
+
+      # Database configuration
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-shiojiri}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shiojiri_dev_password}
+
+      # Override bundle settings for development
+      BUNDLE_DEPLOYMENT: ""
+      BUNDLE_WITHOUT: ""
+
+      # JWT secret (development only - use secure value in production)
+      DEVISE_JWT_SECRET_KEY: ${DEVISE_JWT_SECRET_KEY:-dev_jwt_secret_key_change_in_production}
+
+      # Solid Queue in Puma (single-server development mode)
+      SOLID_QUEUE_IN_PUMA: "true"
+    volumes:
+      # Mount source code for live reload
+      - .:/rails:cached
+      # Use named volumes for better performance
+      - bundle_cache:/usr/local/bundle
+      - rails_cache:/rails/tmp/cache
+      - rails_storage:/rails/storage
+    ports:
+      - "${API_PORT:-3000}:3000"
+    stdin_open: true
+    tty: true
+    command: ["./bin/rails", "server", "-b", "0.0.0.0"]
+
+  # ===========================================================================
+  # Redis (Optional - for Action Cable or caching if not using Solid variants)
+  # ===========================================================================
+  # Uncomment if you need Redis for any specific use case
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: shiojiri-rainbow-redis
+  #   restart: unless-stopped
+  #   volumes:
+  #     - redis_data:/data
+  #   ports:
+  #     - "${REDIS_PORT:-6379}:6379"
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  postgres_data:
+    name: shiojiri-rainbow-postgres
+  bundle_cache:
+    name: shiojiri-rainbow-bundle
+  rails_cache:
+    name: shiojiri-rainbow-cache
+  rails_storage:
+    name: shiojiri-rainbow-storage
+  # redis_data:
+  #   name: shiojiri-rainbow-redis
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  default:
+    name: shiojiri-rainbow-network

@@ -1,0 +1,85 @@
+#!/bin/bash -e
+
+# =============================================================================
+# Shiojiri Rainbow Seeker Backend - Docker Entrypoint
+# =============================================================================
+# This script prepares the container environment before starting the application
+# =============================================================================
+
+# Enable jemalloc for reduced memory usage and latency
+if [ -z "${LD_PRELOAD+x}" ]; then
+    LD_PRELOAD=$(find /usr/lib -name libjemalloc.so.2 -print -quit 2>/dev/null || true)
+    if [ -n "$LD_PRELOAD" ]; then
+        export LD_PRELOAD
+        echo "=> Using jemalloc: $LD_PRELOAD"
+    fi
+fi
+
+# Function to wait for database to be ready
+wait_for_database() {
+    local max_attempts=${DATABASE_WAIT_ATTEMPTS:-30}
+    local attempt=1
+
+    echo "=> Waiting for database to be ready..."
+
+    while [ $attempt -le $max_attempts ]; do
+        if ./bin/rails db:version > /dev/null 2>&1; then
+            echo "=> Database is ready!"
+            return 0
+        fi
+
+        echo "   Attempt $attempt/$max_attempts: Database not ready, waiting..."
+        sleep 2
+        attempt=$((attempt + 1))
+    done
+
+    echo "=> ERROR: Database not ready after $max_attempts attempts"
+    return 1
+}
+
+# Function to prepare the database
+prepare_database() {
+    echo "=> Preparing database..."
+
+    # Check if database exists and run migrations
+    if ./bin/rails db:version > /dev/null 2>&1; then
+        echo "=> Running database migrations..."
+        ./bin/rails db:migrate
+    else
+        echo "=> Creating and setting up database..."
+        ./bin/rails db:prepare
+    fi
+
+    echo "=> Database preparation complete!"
+}
+
+# Main entrypoint logic
+main() {
+    # Check if we're running the Rails server
+    if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+        # Wait for database if DATABASE_HOST is set (running in Docker Compose)
+        if [ -n "${DATABASE_HOST}" ]; then
+            wait_for_database
+        fi
+
+        # Prepare database unless explicitly disabled
+        if [ "${SKIP_DATABASE_PREPARE}" != "true" ]; then
+            prepare_database
+        fi
+    fi
+
+    # Check if we're running Solid Queue worker
+    if [ "${1}" == "./bin/rails" ] && [ "${2}" == "solid_queue:start" ]; then
+        # Wait for database if DATABASE_HOST is set
+        if [ -n "${DATABASE_HOST}" ]; then
+            wait_for_database
+        fi
+        echo "=> Starting Solid Queue worker..."
+    fi
+
+    # Execute the main command
+    exec "${@}"
+}
+
+# Run main function with all arguments
+main "${@}"

@@ -1,0 +1,54 @@
+#!/bin/bash
+# =============================================================================
+# Pre-Build Hook - Runs before docker build
+# =============================================================================
+# This hook runs on the local machine before building the Docker image.
+# Use it for pre-flight checks and preparation.
+# =============================================================================
+
+set -e
+
+echo "=> Pre-build checks for Shiojiri Rainbow Seeker"
+
+# Check if required files exist
+if [ ! -f "Dockerfile" ]; then
+    echo "ERROR: Dockerfile not found!"
+    exit 1
+fi
+
+if [ ! -f "Gemfile.lock" ]; then
+    echo "ERROR: Gemfile.lock not found!"
+    exit 1
+fi
+
+# Verify Ruby version matches
+if [ -f ".ruby-version" ]; then
+    RUBY_VERSION=$(cat .ruby-version)
+    echo "   Ruby version: $RUBY_VERSION"
+fi
+
+# Check for uncommitted changes (warning only)
+if [ -d ".git" ]; then
+    if ! git diff-index --quiet HEAD --; then
+        echo "WARNING: You have uncommitted changes!"
+        echo "   Consider committing before deploying."
+    fi
+
+    # Show current git info
+    echo "   Git branch: $(git branch --show-current)"
+    echo "   Git commit: $(git rev-parse --short HEAD)"
+fi
+
+# Verify master key exists for production
+if [ ! -f "config/master.key" ] && [ -z "$RAILS_MASTER_KEY" ]; then
+    echo "WARNING: config/master.key not found and RAILS_MASTER_KEY not set!"
+    echo "   The build may fail without the master key."
+fi
+
+# Run basic security checks
+if command -v bundle &> /dev/null; then
+    echo "=> Running bundler-audit..."
+    bundle audit check --update 2>/dev/null || echo "   Skipping audit (not installed or failed)"
+fi
+
+echo "=> Pre-build checks passed!"

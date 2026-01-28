@@ -1,0 +1,78 @@
+# Banned Words Configuration
+#
+# This file contains words that are prohibited in user-generated content.
+# Administrators can edit this file to update the moderation rules.
+#
+# == Format
+# The file supports three types of matching:
+# - exact: Exact word match (case-insensitive)
+# - partial: Substring match anywhere in the content (case-insensitive)
+# - regex: Regular expression pattern match
+#
+# == Usage
+# Add words/patterns to the appropriate section below.
+# The system will automatically reload changes.
+#
+# == Requirements
+# - FR-8 (AC-8.6): Content moderation for comments
+#
+# Note: This is a sample configuration. Adjust based on community guidelines.
+
+# Configuration
+settings:
+  # Whether to enable content filtering
+  enabled: true
+  # Action to take when banned word is found: 'reject' or 'flag'
+  action: reject
+  # Message to show to users when content is rejected
+  rejection_message: "コメントに使用できない言葉が含まれています。"
+
+# Exact match words (case-insensitive)
+# These must match the entire word, not partial matches
+exact:
+  # Spam related
+  - spam
+  - advertisement
+  # Add more words as needed
+
+# Partial match words (case-insensitive)
+# These will match if found anywhere in the content
+partial:
+  # Common spam patterns
+  - http://
+  - https://
+  # Placeholder examples (replace with actual moderation words)
+  - "badword1"
+  - "badword2"
+
+# Regular expression patterns
+# Use for complex matching rules
+# Format: Each entry is a valid Ruby regular expression pattern
+regex:
+  # Example: Match repeated characters (e.g., "aaaaaaa")
+  - '(.)\1{5,}'
+  # Example: Match excessive punctuation
+  - '[!?]{4,}'
+  # Example: Match common spam phone number patterns (Japan)
+  - '\d{2,4}[-\s]?\d{2,4}[-\s]?\d{4}'
+
+# Word categories for future expansion
+# Administrators can add custom categories
+categories:
+  spam:
+    enabled: true
+    words:
+      - 宣伝
+      - 広告
+      - 拡散希望
+
+  inappropriate:
+    enabled: true
+    words: []
+    # Add inappropriate words here
+
+  personal_info:
+    enabled: true
+    patterns:
+      # Email pattern
+      - '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'

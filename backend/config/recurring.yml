@@ -1,0 +1,32 @@
+# Solid Queue Recurring Tasks Configuration for ShiojiriRainbowSeeker
+# These tasks run on a schedule using the Solid Queue scheduler
+#
+# examples:
+#   periodic_cleanup:
+#     class: CleanSoftDeletedRecordsJob
+#     queue: background
+#     args: [ 1000, { batch_size: 500 } ]
+#     schedule: every hour
+#   periodic_cleanup_with_command:
+#     command: "SoftDeletedRecord.due.delete_all"
+#     priority: 2
+#     schedule: at 5am every day
+
+# Development tasks (optional - uncomment to enable)
+# development:
+#   test_heartbeat:
+#     class: TestJob
+#     queue: default
+#     args: ["Heartbeat check"]
+#     schedule: every 5 minutes
+
+production:
+  # Clear finished Solid Queue jobs to prevent table bloat
+  clear_solid_queue_finished_jobs:
+    command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
+    schedule: every hour at minute 12
+
+  # Clear old Solid Cache entries (handled automatically by max_age, but this ensures cleanup)
+  clear_expired_cache_entries:
+    command: "SolidCache::Entry.clear_delete_in_batches"
+    schedule: every day at 3am

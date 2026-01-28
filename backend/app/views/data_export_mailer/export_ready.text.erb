@@ -1,0 +1,21 @@
+<%= @app_name %>
+<%= "=" * @app_name.length %>
+
+<%= t('data_export_mailer.export_ready.greeting', name: @user.display_name) %>
+
+<%= t('data_export_mailer.export_ready.message') %>
+
+<%= t('data_export_mailer.export_ready.contents_title') %>
+- <%= t('data_export_mailer.export_ready.contents.profile') %>
+- <%= t('data_export_mailer.export_ready.contents.photos') %>
+- <%= t('data_export_mailer.export_ready.contents.comments') %>
+- <%= t('data_export_mailer.export_ready.contents.likes') %>
+
+<%= t('data_export_mailer.export_ready.download_button') %>:
+<%= @download_url %>
+
+<%= t('data_export_mailer.export_ready.expiry_notice') %>
+<%= t('data_export_mailer.export_ready.expiry_message', time: l(@expires_at, format: :long)) %>
+
+---
+<%= t('data_export_mailer.export_ready.footer') %>

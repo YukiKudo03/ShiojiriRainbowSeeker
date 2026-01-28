@@ -1,0 +1,64 @@
+# Brakeman configuration file
+# https://brakemanscanner.org/docs/options/
+
+---
+# Run options
+:run_all_checks: true
+:output: "tmp/brakeman_report.html"
+:format: "html"
+:quiet: false
+
+# Ignore certain types of warnings (use with caution)
+# :skip_checks:
+#   - "CheckCrossSiteScripting"
+
+# Files/directories to skip
+:skip_files:
+  - "lib/tasks/"
+  - "db/"
+
+# Confidence level (0 = High, 1 = Medium, 2 = Weak)
+# Only report warnings with confidence level <= this value
+:min_confidence: 1
+
+# Exit code options
+:exit_on_warn: true
+:exit_on_error: true
+
+# Report options
+:report_progress: true
+:summary_only: false
+
+# Absolute paths to treat as application root
+# :path: "/Users/yukikudo/ClaudeCodes/ShiojiriRainbowSeeker/backend"
+
+# Rails version (auto-detected if not specified)
+# :rails: "8.0"
+
+# Additional libraries to require
+# :additional_libs_path: "lib"
+
+# Message formatting
+:message_limit: 100
+:table_width: 80
+
+# Ignore model output
+:ignore_model_output: false
+
+# Check for dangerous send
+:check_arguments: true
+
+# String interpolation in SQL (high risk)
+:sql_safe_methods:
+  - "sanitize_sql"
+  - "sanitize_sql_array"
+  - "sanitize_sql_for_conditions"
+
+# Trusted methods that return safe strings
+:safe_methods:
+  - "html_escape"
+  - "h"
+  - "sanitize"
+
+# Custom ignore file for false positives
+:ignore_file: ".brakeman.ignore"

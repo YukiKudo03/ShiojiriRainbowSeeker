@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/shiojiri-rainbow-seeker/tasks.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-01-20T19:27:38.351Z",
+      "trigger": "initial",
+      "approvalId": "approval_1768937258349_q6s6vkym6",
+      "approvalTitle": "塩尻レインボーシーカー タスク分解書"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-01-20T22:48:02.303Z",
+      "trigger": "approved",
+      "approvalId": "approval_1768937258349_q6s6vkym6",
+      "approvalTitle": "塩尻レインボーシーカー タスク分解書"
+    }
+  ]
+}

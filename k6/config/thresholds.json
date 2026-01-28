@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "K6 Performance Thresholds",
+  "description": "NFR-2 compliant performance thresholds for Shiojiri Rainbow Seeker",
+  "nfr2Requirements": {
+    "apiResponseTime": {
+      "p95": 200,
+      "unit": "milliseconds",
+      "description": "API response time p95 < 200ms"
+    },
+    "concurrentUsers": {
+      "target": 1000,
+      "description": "Support 1000 concurrent users"
+    },
+    "imageUpload": {
+      "maxTime": 3000,
+      "unit": "milliseconds",
+      "description": "Image upload < 3 seconds"
+    },
+    "mapLoading": {
+      "maxTime": 2000,
+      "unit": "milliseconds",
+      "description": "Map loading < 2 seconds"
+    }
+  },
+  "standardThresholds": {
+    "http_req_duration": [
+      "p(95)<200",
+      "p(99)<500",
+      "avg<100"
+    ],
+    "http_req_failed": ["rate<0.01"],
+    "http_reqs": ["rate>100"]
+  },
+  "endpointSpecificThresholds": {
+    "auth": {
+      "login": {
+        "http_req_duration": ["p(95)<200"],
+        "success_rate": ["rate>0.95"]
+      },
+      "register": {
+        "http_req_duration": ["p(95)<300"],
+        "success_rate": ["rate>0.90"]
+      },
+      "refresh": {
+        "http_req_duration": ["p(95)<100"],
+        "success_rate": ["rate>0.95"]
+      }
+    },
+    "photos": {
+      "list": {
+        "http_req_duration": ["p(95)<200"],
+        "success_rate": ["rate>0.95"]
+      },
+      "detail": {
+        "http_req_duration": ["p(95)<200"],
+        "success_rate": ["rate>0.95"]
+      },
+      "upload": {
+        "http_req_duration": ["p(95)<3000"],
+        "success_rate": ["rate>0.90"]
+      }
+    },
+    "maps": {
+      "markers": {
+        "http_req_duration": ["p(95)<2000"],
+        "success_rate": ["rate>0.95"]
+      },
+      "clusters": {
+        "http_req_duration": ["p(95)<2000"],
+        "success_rate": ["rate>0.95"]
+      },
+      "heatmap": {
+        "http_req_duration": ["p(95)<2000"],
+        "success_rate": ["rate>0.95"]
+      }
+    },
+    "social": {
+      "like": {
+        "http_req_duration": ["p(95)<200"],
+        "success_rate": ["rate>0.95"]
+      },
+      "comment": {
+        "http_req_duration": ["p(95)<200"],
+        "success_rate": ["rate>0.90"]
+      }
+    }
+  },
+  "scenarioThresholds": {
+    "smoke": {
+      "http_req_duration": ["p(95)<500", "p(99)<1000"],
+      "http_req_failed": ["rate<0.05"],
+      "description": "Relaxed thresholds for quick validation"
+    },
+    "load": {
+      "http_req_duration": ["p(95)<200", "p(99)<500"],
+      "http_req_failed": ["rate<0.01"],
+      "description": "Standard NFR-2 compliant thresholds"
+    },
+    "stress": {
+      "http_req_duration": ["p(95)<1000", "p(99)<3000"],
+      "http_req_failed": ["rate<0.05"],
+      "description": "Relaxed thresholds for stress testing"
+    },
+    "spike": {
+      "http_req_duration": ["p(95)<3000", "p(99)<5000"],
+      "http_req_failed": ["rate<0.10"],
+      "description": "Very relaxed thresholds for spike testing"
+    }
+  }
+}

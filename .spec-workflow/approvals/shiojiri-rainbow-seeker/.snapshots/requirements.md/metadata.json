@@ -1,0 +1,38 @@
+{
+  "filePath": ".spec-workflow/specs/shiojiri-rainbow-seeker/requirements.md",
+  "currentVersion": 4,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-01-20T18:43:24.275Z",
+      "trigger": "initial",
+      "approvalId": "approval_1768934604270_2y8g7be6n",
+      "approvalTitle": "Requirements Document for ShiojiriRainbowSeeker"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-01-20T18:44:23.380Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1768934604270_2y8g7be6n",
+      "approvalTitle": "Requirements Document for ShiojiriRainbowSeeker"
+    },
+    {
+      "version": 3,
+      "filename": "snapshot-003.json",
+      "timestamp": "2026-01-20T18:51:55.576Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1768934837908_wdkwrgolv",
+      "approvalTitle": "塩尻レインボーシーカー 要件定義書（日本語版）"
+    },
+    {
+      "version": 4,
+      "filename": "snapshot-004.json",
+      "timestamp": "2026-01-20T18:54:01.233Z",
+      "trigger": "approved",
+      "approvalId": "approval_1768935212393_nm00lye6i",
+      "approvalTitle": "塩尻レインボーシーカー 要件定義書（気象条件記録機能追加版）"
+    }
+  ]
+}

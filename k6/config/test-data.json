@@ -1,0 +1,74 @@
+{
+  "shiojiriBounds": {
+    "main": {
+      "north": 36.15,
+      "south": 35.85,
+      "east": 138.3,
+      "west": 137.9,
+      "description": "Main Shiojiri area"
+    },
+    "center": {
+      "north": 36.0,
+      "south": 35.95,
+      "east": 138.15,
+      "west": 138.05,
+      "description": "Shiojiri city center"
+    },
+    "wide": {
+      "north": 36.5,
+      "south": 35.5,
+      "east": 138.8,
+      "west": 137.5,
+      "description": "Wider Nagano prefecture view"
+    },
+    "detailed": {
+      "north": 35.98,
+      "south": 35.96,
+      "east": 138.12,
+      "west": 138.08,
+      "description": "Very zoomed in view"
+    }
+  },
+  "rainbowTypes": [
+    "full",
+    "double",
+    "partial",
+    "supernumerary",
+    "fogbow"
+  ],
+  "sampleComments": [
+    "Beautiful rainbow!",
+    "Amazing capture!",
+    "Love the colors!",
+    "Perfect timing!",
+    "Stunning view!",
+    "What a sight!",
+    "Incredible!",
+    "Breathtaking!",
+    "Nature's masterpiece!",
+    "So lucky to see this!"
+  ],
+  "sortOptions": [
+    { "by": "created_at", "order": "desc" },
+    { "by": "created_at", "order": "asc" },
+    { "by": "likes_count", "order": "desc" },
+    { "by": "comments_count", "order": "desc" }
+  ],
+  "filterOptions": {
+    "rainbowTypes": ["full", "double", "partial"],
+    "dateRanges": [
+      { "name": "today", "days": 0 },
+      { "name": "week", "days": 7 },
+      { "name": "month", "days": 30 },
+      { "name": "year", "days": 365 }
+    ],
+    "radiusOptions": [1, 5, 10, 25, 50]
+  },
+  "reportReasons": [
+    "spam",
+    "inappropriate",
+    "copyright",
+    "harassment",
+    "other"
+  ]
+}

@@ -1,0 +1,385 @@
+# Japanese translations for Shiojiri Rainbow Seeker API
+# NFR-5: Internationalization support
+
+ja:
+  # Application name
+  app_name: "塩尻レインボーシーカー"
+  hello: "こんにちは"
+
+  # ===== API Error Messages =====
+  errors:
+    # General errors
+    validation_failed: "入力内容に誤りがあります"
+    not_found: "見つかりませんでした"
+    unauthorized: "認証が必要です"
+    forbidden: "アクセス権限がありません"
+    internal_server_error: "サーバーエラーが発生しました"
+    bad_request: "リクエストが不正です"
+    service_unavailable: "サービスが一時的に利用できません"
+
+    # Authentication errors (1000-1999)
+    authentication:
+      invalid_email: "メールアドレスが正しくありません"
+      invalid_password: "パスワードが正しくありません"
+      not_authorized: "認証に失敗しました"
+      account_locked: "アカウントがロックされています"
+      email_not_confirmed: "メールアドレスの確認が完了していません"
+      invalid_token: "トークンが無効または期限切れです"
+      session_expired: "セッションの有効期限が切れました"
+
+    # Validation errors (2000-2999)
+    validation:
+      required_field_missing: "必須項目が入力されていません"
+      character_limit_exceeded: "文字数制限を超えています"
+      invalid_format: "形式が正しくありません"
+      invalid_value: "値が正しくありません"
+
+    # Resource errors (3000-3999)
+    resources:
+      photo_not_found: "写真が見つかりません"
+      user_not_found: "ユーザーが見つかりません"
+      comment_not_found: "コメントが見つかりません"
+      notification_not_found: "通知が見つかりません"
+      resource_not_found: "リソースが見つかりません"
+
+    # External service errors (4000-4999)
+    external:
+      weather_api_error: "天気情報の取得に失敗しました"
+      s3_upload_error: "画像のアップロードに失敗しました"
+      push_notification_error: "プッシュ通知の送信に失敗しました"
+
+    # Server errors (5000-5999)
+    server:
+      database_error: "データベースエラーが発生しました"
+      internal_error: "内部エラーが発生しました"
+
+  # ===== Success Messages =====
+  success:
+    created: "作成しました"
+    updated: "更新しました"
+    deleted: "削除しました"
+    saved: "保存しました"
+
+  # ===== User Related =====
+  users:
+    profile_updated: "プロフィールを更新しました"
+    password_changed: "パスワードを変更しました"
+    email_updated: "メールアドレスを更新しました"
+    locale_updated: "言語設定を更新しました"
+    registration_success: "登録が完了しました。確認メールを送信しました。"
+    login_success: "ログインしました"
+    logout_success: "ログアウトしました"
+
+  # ===== Photo Related =====
+  photos:
+    uploaded: "虹の写真を投稿しました"
+    deleted: "写真を削除しました"
+    not_owner: "この写真の所有者ではありません"
+    validation:
+      image_required: "画像は必須です"
+      location_required: "位置情報は必須です"
+      invalid_coordinates: "座標が無効です"
+
+  # ===== Comment Related =====
+  comments:
+    created: "コメントを投稿しました"
+    deleted: "コメントを削除しました"
+    not_owner: "このコメントの所有者ではありません"
+
+  # ===== Like Related =====
+  likes:
+    created: "いいねしました"
+    removed: "いいねを取り消しました"
+    already_liked: "既にいいね済みです"
+
+  # ===== Report Related =====
+  reports:
+    created: "報告を送信しました"
+    already_reported: "既に報告済みです"
+
+  # ===== Data Export (GDPR) =====
+  data_export:
+    request_success: "データエクスポートをリクエストしました。準備ができ次第、ダウンロードリンクが記載されたメールをお送りします。"
+    estimated_time: "24時間以内"
+    in_progress: "データエクスポートを処理中です"
+    completed: "データエクスポートが完了しました"
+
+  # ===== Account Deletion (GDPR) =====
+  account_deletion:
+    request_success: "アカウント削除をスケジュールしました。14日以内であればキャンセル可能です。"
+    cancel_success: "アカウント削除をキャンセルしました。アカウントは引き続き有効です。"
+    no_pending_deletion: "削除リクエストはありません。"
+    deleted_user_name: "削除済みユーザー"
+    unknown_user: "不明"
+    grace_period_days: "14日間の猶予期間があります"
+    notifications:
+      requested:
+        title: "アカウント削除予約"
+        body: "アカウントは%{date}に完全に削除されます。設定からキャンセルできます。"
+      canceled:
+        title: "アカウント削除キャンセル"
+        body: "アカウント削除がキャンセルされました。アカウントは引き続き有効です。"
+    errors:
+      user_not_found: "ユーザーが見つかりません"
+      already_deleted: "アカウントは既に削除されています"
+      deletion_already_requested: "削除リクエストは既に送信されています"
+      no_deletion_request: "削除リクエストが見つかりません"
+      grace_period_expired: "猶予期間が終了したため、削除をキャンセルできません"
+
+  # ===== Admin =====
+  admin:
+    reports:
+      approve_success: "報告を却下しました。コンテンツは引き続き表示されます。"
+      hide_success: "報告を処理しました。コンテンツを非表示にしました。"
+      delete_success: "報告を処理しました。コンテンツを削除しました。"
+      errors:
+        invalid_action: "無効なアクションです。approve, hide, delete のいずれかを指定してください"
+        report_not_found: "報告が見つかりません"
+        already_processed: "この報告は既に処理されています"
+    notifications:
+      content_hidden:
+        title: "コンテンツが非表示になりました"
+        body: "あなたの%{content_type}はポリシー違反のため非表示になりました。"
+      content_deleted:
+        title: "コンテンツが削除されました"
+        body: "あなたの%{content_type}はポリシー違反のため削除されました。"
+    content_types:
+      photo: "写真"
+      comment: "コメント"
+
+  # ===== Notifications =====
+  notifications:
+    marked_read: "通知を既読にしました"
+    marked_all_read: "すべての通知を既読にしました"
+    types:
+      new_like: "新しいいいね"
+      new_comment: "新しいコメント"
+      rainbow_alert: "虹の出現予報"
+      system: "システム通知"
+
+  # ===== Weather & Rainbow =====
+  weather:
+    rainbow_probability: "虹の出現確率"
+    conditions:
+      excellent: "最高の条件"
+      good: "良好な条件"
+      fair: "まあまあの条件"
+      poor: "厳しい条件"
+    alerts:
+      high_probability: "虹が出現する可能性が高いです"
+      check_sky: "空をチェックしてみてください"
+
+  # ===== Mailers =====
+  data_export_mailer:
+    export_ready:
+      subject: "データエクスポートの準備ができました - %{app_name}"
+      greeting: "%{name}さん、こんにちは。"
+      message: "ご依頼いただいた個人データのエクスポートが完了し、ダウンロード可能になりました。"
+      contents_title: "このアーカイブには以下が含まれています："
+      contents:
+        profile: "プロフィール情報"
+        photos: "アップロードしたすべての写真（メタデータ含む）"
+        comments: "投稿したすべてのコメント"
+        likes: "いいねしたすべての記録"
+      download_button: "データをダウンロード"
+      expiry_notice: "重要：このリンクには有効期限があります"
+      expiry_message: "%{time}までにダウンロードしてください。"
+      link_hint: "上のボタンが機能しない場合は、以下のリンクをブラウザにコピー＆ペーストしてください："
+      footer: "このメールは、データエクスポートをリクエストされたため送信されました。心当たりがない場合は、サポートまでご連絡ください。"
+
+  account_mailer:
+    deletion_scheduled:
+      subject: "アカウント削除のお知らせ - %{app_name}"
+      greeting: "%{name}さん、こんにちは。"
+      message: "アカウント削除のリクエストを受け付けました。"
+      deletion_date: "削除予定日：%{date}"
+      cancel_info: "削除をキャンセルするには、アプリの設定から「削除をキャンセル」を選択してください。"
+      footer: "このメールは、アカウント削除をリクエストされたため送信されました。"
+    deletion_canceled:
+      subject: "アカウント削除のキャンセル - %{app_name}"
+      greeting: "%{name}さん、こんにちは。"
+      message: "アカウント削除のキャンセルが完了しました。"
+      info: "アカウントは引き続きご利用いただけます。"
+      footer: "このメールは、アカウント削除のキャンセルを確認するため送信されました。"
+    welcome:
+      subject: "%{app_name}へようこそ"
+      greeting: "%{name}さん、こんにちは。"
+      message: "%{app_name}へのご登録ありがとうございます。"
+      features:
+        title: "主な機能："
+        rainbow_map: "虹の出現マップ"
+        photo_sharing: "虹の写真共有"
+        alerts: "虹の出現アラート"
+      footer: "このメールは、アカウント登録を確認するため送信されました。"
+
+  # ===== Devise Messages =====
+  devise:
+    failure:
+      already_authenticated: "すでにログインしています。"
+      inactive: "アカウントはまだ有効化されていません。"
+      invalid: "%{authentication_keys}またはパスワードが正しくありません。"
+      locked: "アカウントはロックされています。"
+      last_attempt: "あと1回ログインに失敗するとアカウントがロックされます。"
+      not_found_in_database: "%{authentication_keys}またはパスワードが正しくありません。"
+      timeout: "セッションがタイムアウトしました。もう一度ログインしてください。"
+      unauthenticated: "ログインしてください。"
+      unconfirmed: "メールアドレスの確認が必要です。"
+    sessions:
+      signed_in: "ログインしました。"
+      signed_out: "ログアウトしました。"
+      already_signed_out: "すでにログアウトしています。"
+    registrations:
+      signed_up: "アカウントを登録しました。"
+      signed_up_but_inactive: "アカウントを登録しましたが、有効化されていません。"
+      signed_up_but_locked: "アカウントを登録しましたが、ロックされています。"
+      signed_up_but_unconfirmed: "確認メールを送信しました。メール内のリンクからアカウントを有効化してください。"
+      update_needs_confirmation: "アカウント情報を更新しました。新しいメールアドレスの確認が必要です。確認メールを送信しました。"
+      updated: "アカウント情報を更新しました。"
+      updated_but_not_signed_in: "アカウント情報を更新しました。パスワードが変更されたため、再度ログインしてください。"
+      destroyed: "アカウントを削除しました。またのご利用をお待ちしております。"
+    passwords:
+      no_token: "パスワードリセットのリンクからアクセスしていません。リンクが正しいか確認してください。"
+      send_instructions: "パスワードリセットの手順をメールで送信しました。"
+      send_paranoid_instructions: "メールアドレスが登録されていれば、パスワードリセットの手順をメールで送信します。"
+      updated: "パスワードを変更しました。"
+      updated_not_active: "パスワードを変更しました。"
+    confirmations:
+      confirmed: "メールアドレスの確認が完了しました。"
+      send_instructions: "確認メールを送信しました。"
+      send_paranoid_instructions: "メールアドレスが登録されていれば、確認メールを送信します。"
+    mailer:
+      confirmation_instructions:
+        subject: "メールアドレス確認のお願い"
+      reset_password_instructions:
+        subject: "パスワードリセットのお知らせ"
+      unlock_instructions:
+        subject: "アカウントのロック解除について"
+      email_changed:
+        subject: "メールアドレス変更のお知らせ"
+      password_change:
+        subject: "パスワード変更完了のお知らせ"
+
+  # ===== ActiveRecord Validations =====
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "検証に失敗しました: %{errors}"
+        restrict_dependent_destroy:
+          has_one: "%{record}が存在しているため削除できません"
+          has_many: "%{record}が存在しているため削除できません"
+        blank: "を入力してください"
+        present: "は入力しないでください"
+        confirmation: "と%{attribute}の入力が一致しません"
+        accepted: "を受諾してください"
+        empty: "を入力してください"
+        too_long: "は%{count}文字以内で入力してください"
+        too_short: "は%{count}文字以上で入力してください"
+        wrong_length: "は%{count}文字で入力してください"
+        not_a_number: "は数値で入力してください"
+        not_an_integer: "は整数で入力してください"
+        greater_than: "は%{count}より大きい値にしてください"
+        greater_than_or_equal_to: "は%{count}以上の値にしてください"
+        equal_to: "は%{count}にしてください"
+        less_than: "は%{count}より小さい値にしてください"
+        less_than_or_equal_to: "は%{count}以下の値にしてください"
+        other_than: "は%{count}以外の値にしてください"
+        odd: "は奇数にしてください"
+        even: "は偶数にしてください"
+        inclusion: "は一覧にありません"
+        exclusion: "は予約されています"
+        invalid: "は不正な値です"
+        taken: "はすでに存在します"
+      models:
+        user:
+          attributes:
+            email:
+              blank: "メールアドレスを入力してください"
+              taken: "このメールアドレスは既に使用されています"
+              invalid: "有効なメールアドレスを入力してください"
+            password:
+              blank: "パスワードを入力してください"
+              too_short: "パスワードは%{count}文字以上で入力してください"
+              confirmation: "パスワード（確認）と一致しません"
+            display_name:
+              blank: "表示名を入力してください"
+              too_short: "表示名は%{count}文字以上で入力してください"
+              too_long: "表示名は%{count}文字以内で入力してください"
+            locale:
+              inclusion: "対応していない言語です"
+        photo:
+          attributes:
+            image:
+              blank: "画像を選択してください"
+            latitude:
+              blank: "緯度を入力してください"
+              not_a_number: "緯度は数値で入力してください"
+            longitude:
+              blank: "経度を入力してください"
+              not_a_number: "経度は数値で入力してください"
+        comment:
+          attributes:
+            content:
+              blank: "コメントを入力してください"
+              too_long: "コメントは%{count}文字以内で入力してください"
+    attributes:
+      user:
+        email: "メールアドレス"
+        password: "パスワード"
+        password_confirmation: "パスワード（確認）"
+        display_name: "表示名"
+        locale: "言語"
+        role: "役割"
+        created_at: "登録日時"
+        updated_at: "更新日時"
+        confirmed_at: "確認日時"
+      photo:
+        image: "画像"
+        latitude: "緯度"
+        longitude: "経度"
+        description: "説明"
+        taken_at: "撮影日時"
+        created_at: "投稿日時"
+      comment:
+        content: "コメント"
+        created_at: "投稿日時"
+      like:
+        created_at: "いいね日時"
+      notification:
+        title: "タイトル"
+        body: "本文"
+        read_at: "既読日時"
+      report:
+        reason: "報告理由"
+        description: "詳細"
+        status: "ステータス"
+    models:
+      user:
+        one: "ユーザー"
+        other: "ユーザー"
+      photo:
+        one: "写真"
+        other: "写真"
+      comment:
+        one: "コメント"
+        other: "コメント"
+      like:
+        one: "いいね"
+        other: "いいね"
+      notification:
+        one: "通知"
+        other: "通知"
+      report:
+        one: "報告"
+        other: "報告"
+
+  # ===== Date/Time Formats =====
+  date:
+    formats:
+      default: "%Y年%m月%d日"
+      short: "%m/%d"
+      long: "%Y年%m月%d日(%a)"
+  time:
+    formats:
+      default: "%Y年%m月%d日 %H:%M"
+      short: "%m/%d %H:%M"
+      long: "%Y年%m月%d日(%a) %H:%M"

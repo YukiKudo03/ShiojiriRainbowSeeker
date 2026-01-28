@@ -1,0 +1,260 @@
+# =============================================================================
+# Shiojiri Rainbow Seeker - Kamal 2 Deployment Configuration
+# =============================================================================
+# Deploy using: kamal deploy
+# Initial setup: kamal setup
+#
+# Prerequisites:
+#   1. Server with Docker installed
+#   2. SSH access to server
+#   3. Docker Hub (or other registry) account
+#   4. Domain DNS pointing to server
+# =============================================================================
+
+# Application name - used for container naming
+service: shiojiri-rainbow-seeker
+
+# Container image name (update with your registry)
+image: your-dockerhub-username/shiojiri-rainbow-seeker
+
+# =============================================================================
+# Server Configuration
+# =============================================================================
+# Deploy to these servers. Update IPs with your actual server addresses.
+servers:
+  web:
+    hosts:
+      - 192.168.1.10
+    labels:
+      traefik.http.routers.shiojiri-rainbow-seeker.rule: Host(`api.shiojiri-rainbow.app`)
+    options:
+      memory: 2g
+      cpus: 2
+
+  # Dedicated job processing server (optional - remove if running in-puma)
+  job:
+    hosts:
+      - 192.168.1.10
+    cmd: ./bin/rails solid_queue:start
+    options:
+      memory: 1g
+      cpus: 1
+
+# =============================================================================
+# SSL/TLS Configuration via Kamal Proxy
+# =============================================================================
+# Let's Encrypt automatic SSL certificate
+proxy:
+  ssl: true
+  host: api.shiojiri-rainbow.app
+  # Health check configuration for the proxy
+  healthcheck:
+    path: /up
+    interval: 30
+    timeout: 5
+
+# =============================================================================
+# Container Registry
+# =============================================================================
+registry:
+  # For Docker Hub
+  username: your-dockerhub-username
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+  # For GitHub Container Registry (ghcr.io)
+  # server: ghcr.io
+  # username: your-github-username
+
+  # For AWS ECR
+  # server: your-account-id.dkr.ecr.region.amazonaws.com
+
+# =============================================================================
+# Environment Variables
+# =============================================================================
+env:
+  # Secrets (pulled from .kamal/secrets)
+  secret:
+    - RAILS_MASTER_KEY
+    - SHIOJIRI_RAINBOW_SEEKER_DATABASE_PASSWORD
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - OPENWEATHER_API_KEY
+    - FCM_SERVER_KEY
+    - SENTRY_DSN
+
+  # Clear (non-secret) environment variables
+  clear:
+    # Rails configuration
+    RAILS_ENV: production
+    RAILS_LOG_LEVEL: info
+    RAILS_LOG_TO_STDOUT: true
+    RAILS_SERVE_STATIC_FILES: false
+
+    # Database configuration (uses accessory db)
+    DATABASE_HOST: shiojiri-rainbow-seeker-db
+    DATABASE_PORT: 5432
+
+    # Solid Queue configuration
+    # Set to true to run Solid Queue inside Puma (single server setup)
+    SOLID_QUEUE_IN_PUMA: false
+
+    # Puma configuration
+    WEB_CONCURRENCY: 2
+    RAILS_MAX_THREADS: 5
+
+    # Active Storage (S3)
+    AWS_REGION: ap-northeast-1
+    AWS_BUCKET: shiojiri-rainbow-seeker-production
+
+    # Application settings
+    HOST: api.shiojiri-rainbow.app
+    FRONTEND_URL: https://shiojiri-rainbow.app
+
+    # Weather API
+    WEATHER_FETCH_INTERVAL: 15
+
+    # Sentry (error tracking)
+    SENTRY_ENVIRONMENT: production
+
+# =============================================================================
+# Persistent Storage Volumes
+# =============================================================================
+volumes:
+  # Active Storage local files (fallback)
+  - "shiojiri_rainbow_storage:/rails/storage"
+  # Solid Cache/Queue data
+  - "shiojiri_rainbow_data:/rails/tmp/solid"
+
+# =============================================================================
+# Asset Path for Zero-Downtime Deploys
+# =============================================================================
+# Bridge assets between versions during deployment
+asset_path: /rails/public/assets
+
+# =============================================================================
+# Image Builder Configuration
+# =============================================================================
+builder:
+  # Target architecture
+  arch: amd64
+
+  # Multi-platform builds (if needed)
+  # multiarch: true
+
+  # Build arguments
+  args:
+    RUBY_VERSION: "3.2.2"
+
+  # Build secrets (available during build)
+  # secrets:
+  #   - GITHUB_TOKEN
+
+  # Remote builder for faster builds on Apple Silicon
+  # remote: ssh://docker@builder-server
+
+  # Build cache configuration
+  cache:
+    type: registry
+    options:
+      mode: max
+      compression: zstd
+
+# =============================================================================
+# SSH Configuration
+# =============================================================================
+ssh:
+  user: deploy
+  # Custom SSH key (optional)
+  # keys:
+  #   - ~/.ssh/id_ed25519
+  # Proxy jump (optional, for bastion hosts)
+  # proxy: user@bastion-host
+
+# =============================================================================
+# Boot Configuration
+# =============================================================================
+boot:
+  # Maximum wait time for container to boot
+  limit: 120s
+  # Wait between attempts
+  wait: 5s
+
+# =============================================================================
+# Health Check Configuration
+# =============================================================================
+healthcheck:
+  path: /up
+  port: 3000
+  max_attempts: 10
+  interval: 20s
+  # Custom curl options for health check
+  # cmd: "curl -f http://localhost:3000/up || exit 1"
+
+# =============================================================================
+# Accessories (Database, Redis, etc.)
+# =============================================================================
+accessories:
+  # PostgreSQL with PostGIS database
+  db:
+    image: postgis/postgis:16-3.4
+    host: 192.168.1.10
+    port: "127.0.0.1:5432:5432"
+    env:
+      clear:
+        POSTGRES_DB: shiojiri_rainbow_seeker_production
+        POSTGRES_USER: shiojiri_rainbow_seeker
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+    options:
+      memory: 2g
+      cpus: 2
+
+# =============================================================================
+# Kamal Aliases
+# =============================================================================
+# Useful shortcuts for common operations
+aliases:
+  # Rails console
+  console: app exec --interactive --reuse "bin/rails console"
+  # Database console
+  dbconsole: app exec --interactive --reuse "bin/rails dbconsole"
+  # Shell access
+  shell: app exec --interactive --reuse "bash"
+  # Follow logs
+  logs: app logs -f
+  # Database migration
+  migrate: app exec "bin/rails db:migrate"
+  # Database status
+  dbstatus: app exec "bin/rails db:version"
+  # Solid Queue status
+  qstatus: app exec "bin/rails solid_queue:status"
+  # Clear cache
+  cache-clear: app exec "bin/rails tmp:cache:clear"
+
+# =============================================================================
+# Traefik Configuration (Advanced - Optional)
+# =============================================================================
+# Uncomment for custom Traefik labels
+# traefik:
+#   options:
+#     publish:
+#       - "443:443"
+#     volume:
+#       - "/letsencrypt/acme.json:/letsencrypt/acme.json"
+
+# =============================================================================
+# Barrier (Deployment Verification)
+# =============================================================================
+# Run these commands after deployment to verify success
+barrier:
+  command: "curl -f http://localhost:3000/up"
+  wait: 30s
+
+# =============================================================================
+# Readiness Delay
+# =============================================================================
+# Wait for container to be ready before routing traffic
+readiness_delay: 5s

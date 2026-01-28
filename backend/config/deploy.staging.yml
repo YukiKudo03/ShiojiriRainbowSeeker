@@ -1,0 +1,183 @@
+# =============================================================================
+# Shiojiri Rainbow Seeker - Staging Deployment Configuration
+# =============================================================================
+# Deploy using: kamal deploy -d staging
+#
+# This configuration extends deploy.yml for staging environment testing.
+# Use staging to validate deployments before production.
+# =============================================================================
+
+# Inherit from base configuration
+# Note: Kamal 2 uses destinations, this file is for -d staging
+
+# Application name (with staging suffix)
+service: shiojiri-rainbow-seeker-staging
+
+# Container image (staging tag)
+image: your-dockerhub-username/shiojiri-rainbow-seeker
+
+# =============================================================================
+# Staging Server Configuration
+# =============================================================================
+servers:
+  web:
+    hosts:
+      - 192.168.1.20
+    labels:
+      traefik.http.routers.shiojiri-rainbow-seeker-staging.rule: Host(`staging-api.shiojiri-rainbow.app`)
+    options:
+      memory: 1g
+      cpus: 1
+
+  # Run jobs in Puma for staging (simpler setup)
+  # No dedicated job server needed
+
+# =============================================================================
+# SSL/TLS Configuration
+# =============================================================================
+proxy:
+  ssl: true
+  host: staging-api.shiojiri-rainbow.app
+  healthcheck:
+    path: /up
+    interval: 30
+    timeout: 5
+
+# =============================================================================
+# Container Registry
+# =============================================================================
+registry:
+  username: your-dockerhub-username
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# =============================================================================
+# Environment Variables (Staging-specific)
+# =============================================================================
+env:
+  secret:
+    - RAILS_MASTER_KEY
+    - SHIOJIRI_RAINBOW_SEEKER_DATABASE_PASSWORD
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - OPENWEATHER_API_KEY
+
+  clear:
+    # Rails configuration
+    RAILS_ENV: production
+    RAILS_LOG_LEVEL: debug
+    RAILS_LOG_TO_STDOUT: true
+    RAILS_SERVE_STATIC_FILES: false
+
+    # Database configuration
+    DATABASE_HOST: shiojiri-rainbow-seeker-staging-db
+    DATABASE_PORT: 5432
+
+    # Run Solid Queue in Puma for staging
+    SOLID_QUEUE_IN_PUMA: true
+
+    # Reduced resources for staging
+    WEB_CONCURRENCY: 1
+    RAILS_MAX_THREADS: 3
+
+    # Active Storage (S3 staging bucket)
+    AWS_REGION: ap-northeast-1
+    AWS_BUCKET: shiojiri-rainbow-seeker-staging
+
+    # Application settings
+    HOST: staging-api.shiojiri-rainbow.app
+    FRONTEND_URL: https://staging.shiojiri-rainbow.app
+
+    # Weather API (same as production)
+    WEATHER_FETCH_INTERVAL: 30
+
+    # Sentry (staging environment)
+    SENTRY_ENVIRONMENT: staging
+
+# =============================================================================
+# Persistent Storage Volumes
+# =============================================================================
+volumes:
+  - "shiojiri_rainbow_staging_storage:/rails/storage"
+  - "shiojiri_rainbow_staging_data:/rails/tmp/solid"
+
+# =============================================================================
+# Asset Path
+# =============================================================================
+asset_path: /rails/public/assets
+
+# =============================================================================
+# Image Builder
+# =============================================================================
+builder:
+  arch: amd64
+  args:
+    RUBY_VERSION: "3.2.2"
+  cache:
+    type: registry
+    options:
+      mode: max
+
+# =============================================================================
+# SSH Configuration
+# =============================================================================
+ssh:
+  user: deploy
+
+# =============================================================================
+# Boot Configuration (faster for staging)
+# =============================================================================
+boot:
+  limit: 90s
+  wait: 3s
+
+# =============================================================================
+# Health Check Configuration
+# =============================================================================
+healthcheck:
+  path: /up
+  port: 3000
+  max_attempts: 5
+  interval: 10s
+
+# =============================================================================
+# Accessories
+# =============================================================================
+accessories:
+  db:
+    image: postgis/postgis:16-3.4
+    host: 192.168.1.20
+    port: "127.0.0.1:5432:5432"
+    env:
+      clear:
+        POSTGRES_DB: shiojiri_rainbow_seeker_staging
+        POSTGRES_USER: shiojiri_rainbow_seeker
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+    options:
+      memory: 1g
+      cpus: 1
+
+# =============================================================================
+# Kamal Aliases
+# =============================================================================
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  dbconsole: app exec --interactive --reuse "bin/rails dbconsole"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  migrate: app exec "bin/rails db:migrate"
+
+# =============================================================================
+# Barrier
+# =============================================================================
+barrier:
+  command: "curl -f http://localhost:3000/up"
+  wait: 20s
+
+# =============================================================================
+# Readiness Delay
+# =============================================================================
+readiness_delay: 3s

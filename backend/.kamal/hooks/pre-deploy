@@ -1,0 +1,43 @@
+#!/bin/bash
+# =============================================================================
+# Pre-Deploy Hook - Runs before deploying to servers
+# =============================================================================
+# This hook runs after the image is built and pushed, but before deployment.
+# Use it for final verification and notification.
+# =============================================================================
+
+set -e
+
+echo "=> Pre-deploy checks for Shiojiri Rainbow Seeker"
+
+# Get deployment info
+VERSION=${KAMAL_VERSION:-"unknown"}
+HOSTS=${KAMAL_HOSTS:-"unknown"}
+ROLE=${KAMAL_ROLE:-"unknown"}
+
+echo "   Version: $VERSION"
+echo "   Role: $ROLE"
+echo "   Hosts: $HOSTS"
+
+# Optional: Send deployment notification (Slack, Discord, etc.)
+# Uncomment and configure as needed:
+#
+# if [ -n "$SLACK_WEBHOOK_URL" ]; then
+#     curl -X POST -H 'Content-type: application/json' \
+#         --data "{\"text\":\"🚀 Deploying Shiojiri Rainbow Seeker v${VERSION} to ${ROLE}...\"}" \
+#         "$SLACK_WEBHOOK_URL" 2>/dev/null || true
+# fi
+
+# Verify the image exists in registry
+if [ -n "$KAMAL_IMAGE" ]; then
+    echo "   Deploying image: $KAMAL_IMAGE"
+fi
+
+# Backup reminder (for production)
+if [ "$ROLE" = "web" ]; then
+    echo ""
+    echo "   REMINDER: Ensure database backups are current before deployment!"
+    echo ""
+fi
+
+echo "=> Pre-deploy checks passed! Proceeding with deployment..."

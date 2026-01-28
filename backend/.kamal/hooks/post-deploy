@@ -1,0 +1,49 @@
+#!/bin/bash
+# =============================================================================
+# Post-Deploy Hook - Runs after successful deployment
+# =============================================================================
+# This hook runs after containers are deployed and healthy.
+# Use it for notifications, cleanup, and verification.
+# =============================================================================
+
+set -e
+
+echo "=> Post-deploy actions for Shiojiri Rainbow Seeker"
+
+# Get deployment info
+VERSION=${KAMAL_VERSION:-"unknown"}
+HOSTS=${KAMAL_HOSTS:-"unknown"}
+ROLE=${KAMAL_ROLE:-"unknown"}
+
+echo "   Successfully deployed version: $VERSION"
+echo "   Role: $ROLE"
+echo "   Hosts: $HOSTS"
+
+# Optional: Send success notification
+# Uncomment and configure as needed:
+#
+# if [ -n "$SLACK_WEBHOOK_URL" ]; then
+#     curl -X POST -H 'Content-type: application/json' \
+#         --data "{\"text\":\"✅ Shiojiri Rainbow Seeker v${VERSION} deployed successfully to ${ROLE}!\"}" \
+#         "$SLACK_WEBHOOK_URL" 2>/dev/null || true
+# fi
+
+# Optional: Trigger any post-deployment jobs
+# For example, clearing CDN cache:
+#
+# if [ "$ROLE" = "web" ] && [ -n "$CLOUDFLARE_ZONE_ID" ]; then
+#     curl -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+#         -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+#         -H "Content-Type: application/json" \
+#         --data '{"purge_everything":true}' 2>/dev/null || true
+#     echo "   CloudFlare cache purged!"
+# fi
+
+# Optional: Run smoke tests
+# curl -f "https://api.shiojiri-rainbow.app/up" || echo "WARNING: Health check failed!"
+
+echo "=> Deployment complete! 🌈"
+echo ""
+echo "   API endpoint: https://api.shiojiri-rainbow.app"
+echo "   Health check: https://api.shiojiri-rainbow.app/up"
+echo ""

@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+#
+# Security Scan Script for Shiojiri Rainbow Seeker Backend
+# =========================================================
+# This script runs all security scanning tools to identify vulnerabilities
+# in the codebase and its dependencies.
+#
+# Usage:
+#   bin/security_scan          # Run all scans
+#   bin/security_scan brakeman # Run only Brakeman
+#   bin/security_scan audit    # Run only bundler-audit
+#   bin/security_scan quick    # Quick scan (less verbose)
+#   bin/security_scan ci       # CI mode (exit on any failure)
+#
+# Requirements:
+#   - Ruby and Bundler installed
+#   - Gems: brakeman, bundler-audit
+#
+# Run `bundle install` to install required gems.
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+
+cd "$PROJECT_DIR"
+
+# Ensure tmp directory exists for reports
+mkdir -p tmp/security_reports
+
+# Print header
+print_header() {
+    echo ""
+    echo "=========================================="
+    echo "$1"
+    echo "=========================================="
+}
+
+# Print success message
+print_success() {
+    echo -e "${GREEN}[PASS]${NC} $1"
+}
+
+# Print failure message
+print_failure() {
+    echo -e "${RED}[FAIL]${NC} $1"
+}
+
+# Print warning message
+print_warning() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+# Print info message
+print_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+# Track overall status
+OVERALL_STATUS=0
+
+# Run Brakeman static analysis
+run_brakeman() {
+    print_header "Running Brakeman Security Scan"
+    print_info "Brakeman scans Rails code for security vulnerabilities"
+    echo ""
+
+    local brakeman_opts="-q"
+    local output_file="tmp/security_reports/brakeman_report"
+
+    if [[ "$1" == "verbose" ]]; then
+        brakeman_opts=""
+    fi
+
+    if [[ "$1" == "ci" ]]; then
+        brakeman_opts="-q -w2"
+    fi
+
+    if bundle exec brakeman $brakeman_opts \
+        -o "${output_file}.html" \
+        -o "${output_file}.json" \
+        --no-pager; then
+        print_success "Brakeman scan completed - no vulnerabilities found"
+        echo "  Reports: ${output_file}.html, ${output_file}.json"
+        return 0
+    else
+        print_failure "Brakeman found potential vulnerabilities"
+        echo "  Review: ${output_file}.html"
+        OVERALL_STATUS=1
+        return 1
+    fi
+}
+
+# Run bundler-audit for dependency vulnerabilities
+run_bundler_audit() {
+    print_header "Running Bundler-Audit Dependency Scan"
+    print_info "Bundler-audit checks for known vulnerabilities in gem dependencies"
+    echo ""
+
+    # Update the vulnerability database
+    print_info "Updating vulnerability database..."
+    bundle exec bundler-audit update 2>/dev/null || true
+
+    local output_file="tmp/security_reports/bundler_audit_report.txt"
+
+    if bundle exec bundler-audit check > "$output_file" 2>&1; then
+        print_success "No vulnerable dependencies found"
+        return 0
+    else
+        print_failure "Vulnerable dependencies detected"
+        echo "  Report: $output_file"
+        cat "$output_file"
+        OVERALL_STATUS=1
+        return 1
+    fi
+}
+
+# Run all security scans
+run_all() {
+    local mode="${1:-full}"
+
+    print_header "Shiojiri Rainbow Seeker Security Scan"
+    echo "Mode: $mode"
+    echo "Date: $(date)"
+    echo ""
+
+    # Run Brakeman
+    run_brakeman "$mode" || true
+
+    # Run bundler-audit
+    run_bundler_audit || true
+
+    # Print summary
+    print_header "Security Scan Summary"
+
+    if [[ $OVERALL_STATUS -eq 0 ]]; then
+        print_success "All security scans passed"
+        echo ""
+        echo "Reports saved to: tmp/security_reports/"
+    else
+        print_failure "Security issues were detected"
+        echo ""
+        echo "Please review the reports in: tmp/security_reports/"
+        echo "  - brakeman_report.html (static analysis)"
+        echo "  - bundler_audit_report.txt (dependency vulnerabilities)"
+    fi
+
+    return $OVERALL_STATUS
+}
+
+# Print help
+print_help() {
+    echo "Security Scan Script for Shiojiri Rainbow Seeker"
+    echo ""
+    echo "Usage: $0 [command]"
+    echo ""
+    echo "Commands:"
+    echo "  all       Run all security scans (default)"
+    echo "  brakeman  Run only Brakeman static analysis"
+    echo "  audit     Run only bundler-audit dependency scan"
+    echo "  quick     Quick scan with minimal output"
+    echo "  ci        CI mode - fail on any vulnerability"
+    echo "  help      Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  bin/security_scan"
+    echo "  bin/security_scan brakeman"
+    echo "  bin/security_scan ci"
+}
+
+# Main entry point
+main() {
+    case "${1:-all}" in
+        all)
+            run_all "full"
+            ;;
+        brakeman)
+            run_brakeman "verbose"
+            ;;
+        audit)
+            run_bundler_audit
+            ;;
+        quick)
+            run_all "quick"
+            ;;
+        ci)
+            run_all "ci"
+            ;;
+        help|--help|-h)
+            print_help
+            ;;
+        *)
+            print_failure "Unknown command: $1"
+            print_help
+            exit 1
+            ;;
+    esac
+
+    exit $OVERALL_STATUS
+}
+
+main "$@"
