@@ -45,3 +45,6 @@
 
 # Ignore Brakeman reports
 /tmp/brakeman_report.*
+
+# Ignore Kamal secrets (even though it's a template, prevent accidental secret exposure)
+/.kamal/secrets
