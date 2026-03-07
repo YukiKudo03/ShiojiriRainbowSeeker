@@ -41,6 +41,9 @@ gem "aws-sdk-s3", "~> 1.169", require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 gem "rack-cors"
 
+# Rate limiting and throttling for API protection
+gem "rack-attack", "~> 6.7"
+
 # ===== Authentication =====
 # Devise for user authentication
 gem "devise", "~> 4.9"

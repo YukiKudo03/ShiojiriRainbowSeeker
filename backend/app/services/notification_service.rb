@@ -579,6 +579,17 @@ class NotificationService
       results.concat(android_results.map { |r| r.merge(platform: "android") })
     end
 
+    # Send to LINE (if user has linked LINE account)
+    if user.line_user_id.present? && LineClient.configured?
+      line_result = LineClient.send_push_message(
+        line_user_id: user.line_user_id,
+        title: title,
+        body: body,
+        data: data
+      )
+      results << line_result.merge(platform: "line")
+    end
+
     results
   end
 

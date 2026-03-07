@@ -54,7 +54,7 @@ module Api
       def authenticate_user_optional
         # Try to authenticate, but don't fail if no token
         authenticate_user! if request.headers["Authorization"].present?
-      rescue StandardError
+      rescue Warden::NotAuthenticated, JWT::DecodeError, JWT::ExpiredSignature, JWT::VerificationError
         # Ignore authentication errors for optional auth
         nil
       end

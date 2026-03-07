@@ -399,16 +399,7 @@ module Api
       end
 
       def serialize_comment(comment)
-        {
-          id: comment.id,
-          content: comment.content,
-          user: {
-            id: comment.user.id,
-            display_name: comment.user.display_name
-          },
-          created_at: comment.created_at.iso8601,
-          is_own: comment.owned_by?(current_user)
-        }
+        CommentSerializer.new(comment, params: { current_user: current_user }).serialize
       end
 
       # Send like notification asynchronously to avoid blocking the response

@@ -37,6 +37,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import NetInfo from '@react-native-community/netinfo';
 import * as Location from 'expo-location';
+import { useTranslation } from 'react-i18next';
 import MapView from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -93,6 +94,7 @@ interface RegionStatsState {
   isVisible: boolean;
   isLoading: boolean;
   error: string | null;
+  lastCoordinate: { latitude: number; longitude: number } | null;
 }
 
 // ============================================
@@ -100,6 +102,7 @@ interface RegionStatsState {
 // ============================================
 
 export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
+  const { t } = useTranslation();
   const mapRef = useRef<MapView | null>(null);
 
   // State
@@ -128,6 +131,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     isVisible: false,
     isLoading: false,
     error: null,
+    lastCoordinate: null,
   });
 
   // Refs for debouncing
@@ -201,7 +205,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
           if (cachedMarkers.length > 0) {
             AccessibilityInfo.announceForAccessibility(
-              'オフラインモード: キャッシュされたマーカーを表示しています'
+              t('map.offlineCachedMarkers')
             );
           }
         }
@@ -211,7 +215,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         console.error('Error initializing map:', error);
         setState((prev) => ({
           ...prev,
-          error: '地図の初期化に失敗しました',
+          error: t('map.mapInitError'),
           loadingState: 'error',
         }));
         setIsInitialized(true);
@@ -227,11 +231,11 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         if (prev.isOffline !== !isConnected) {
           if (isConnected) {
             AccessibilityInfo.announceForAccessibility(
-              'ネットワーク接続が回復しました'
+              t('map.networkRestored')
             );
           } else {
             AccessibilityInfo.announceForAccessibility(
-              'オフラインモードに切り替わりました'
+              t('map.offlineSwitched')
             );
           }
         }
@@ -284,13 +288,13 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
           ...prev,
           markers: cachedMarkers,
           loadingState: 'success',
-          error: 'キャッシュデータを表示しています',
+          error: t('map.showingCachedData'),
         }));
       } else {
         setState((prev) => ({
           ...prev,
           loadingState: 'error',
-          error: 'マーカーの読み込みに失敗しました',
+          error: t('map.markerLoadError'),
         }));
       }
     }
@@ -335,13 +339,13 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
 
       if (newIsVisible) {
         AccessibilityInfo.announceForAccessibility(
-          'ヒートマップを表示しました'
+          t('map.heatmapShow')
         );
         // Load heatmap data when enabled
         loadHeatmapData(currentRegion);
       } else {
         AccessibilityInfo.announceForAccessibility(
-          'ヒートマップを非表示にしました'
+          t('map.heatmapHide')
         );
       }
 
@@ -359,9 +363,9 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
   ) => {
     if (state.isOffline) {
       Alert.alert(
-        'オフライン',
-        '地域統計を取得するにはインターネット接続が必要です',
-        [{ text: 'OK' }]
+        t('map.regionStatsOffline'),
+        t('map.regionStatsOfflineMessage'),
+        [{ text: t('common.ok') }]
       );
       return;
     }
@@ -372,6 +376,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
       isLoading: true,
       error: null,
       stats: null,
+      lastCoordinate: { latitude, longitude },
     }));
 
     try {
@@ -382,7 +387,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         setRegionStatsState((prev) => ({
           ...prev,
           isLoading: false,
-          error: 'この場所の地域情報が見つかりませんでした',
+          error: t('map.regionStatsNotFound'),
         }));
         return;
       }
@@ -398,14 +403,14 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
       }));
 
       AccessibilityInfo.announceForAccessibility(
-        `${stats.regionName}の統計を表示中`
+        t('map.regionStatsViewing', { name: stats.regionName })
       );
     } catch (error) {
       console.error('Error loading region stats:', error);
       setRegionStatsState((prev) => ({
         ...prev,
         isLoading: false,
-        error: '地域統計の取得に失敗しました',
+        error: t('map.regionStatsError'),
       }));
     }
   }, [state.isOffline]);
@@ -435,11 +440,13 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
    * Retry loading region stats
    */
   const handleRegionStatsRetry = useCallback(() => {
-    if (regionStatsState.stats) {
-      // We already have stats, just reload
-      loadRegionStatsForLocation(0, 0); // This won't work, need to store coordinates
+    if (regionStatsState.lastCoordinate) {
+      loadRegionStatsForLocation(
+        regionStatsState.lastCoordinate.latitude,
+        regionStatsState.lastCoordinate.longitude
+      );
     }
-  }, [regionStatsState.stats, loadRegionStatsForLocation]);
+  }, [regionStatsState.lastCoordinate, loadRegionStatsForLocation]);
 
   /**
    * View photo from region stats
@@ -502,7 +509,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
    */
   const handleClusterPress = useCallback((markers: MapMarker[]) => {
     AccessibilityInfo.announceForAccessibility(
-      `${markers.length}件の写真にズームします`
+      t('map.zoomingToPhotos', { count: markers.length })
     );
   }, []);
 
@@ -545,7 +552,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         },
         300
       );
-      AccessibilityInfo.announceForAccessibility('現在地に移動しました');
+      AccessibilityInfo.announceForAccessibility(t('map.centeredOnUser'));
     } else {
       // Try to get location again
       try {
@@ -571,19 +578,19 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
             },
             300
           );
-          AccessibilityInfo.announceForAccessibility('現在地に移動しました');
+          AccessibilityInfo.announceForAccessibility(t('map.centeredOnUser'));
         } else {
           Alert.alert(
-            '位置情報の権限',
-            '位置情報へのアクセスを許可してください',
-            [{ text: 'OK' }]
+            t('map.locationPermission'),
+            t('map.locationPermissionMessage'),
+            [{ text: t('common.ok') }]
           );
         }
       } catch {
         Alert.alert(
-          'エラー',
-          '現在地の取得に失敗しました',
-          [{ text: 'OK' }]
+          t('common.error'),
+          t('map.locationError'),
+          [{ text: t('common.ok') }]
         );
       }
     }
@@ -594,7 +601,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
    */
   const handleCenterOnShiojiri = useCallback(() => {
     mapRef.current?.animateToRegion(DEFAULT_REGION, 300);
-    AccessibilityInfo.announceForAccessibility('塩尻に移動しました');
+    AccessibilityInfo.announceForAccessibility(t('map.centeredOnShiojiri'));
   }, []);
 
   /**
@@ -615,12 +622,12 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         style={styles.offlineBanner}
         accessible={true}
         accessibilityRole="alert"
-        accessibilityLabel="オフラインモード: キャッシュされたデータを表示しています"
+        accessibilityLabel={t('map.offlineMode')}
         testID="map-offline-banner"
       >
         <Ionicons name="cloud-offline-outline" size={16} color="#FFFFFF" />
         <Text style={styles.offlineBannerText}>
-          オフライン - キャッシュデータを表示中
+          {t('map.offlineBanner')}
         </Text>
       </View>
     );
@@ -637,7 +644,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         style={styles.errorContainer}
         accessible={true}
         accessibilityRole="alert"
-        accessibilityLabel={state.error || 'エラーが発生しました'}
+        accessibilityLabel={state.error || t('common.error')}
       >
         <Ionicons
           name="alert-circle-outline"
@@ -645,18 +652,18 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
           color={accessibleColors.error}
         />
         <Text style={styles.errorText}>
-          {state.error || 'マーカーの読み込みに失敗しました'}
+          {state.error || t('map.markerLoadError')}
         </Text>
         <TouchableOpacity
           style={styles.retryButton}
           onPress={handleRetry}
           accessible={true}
           accessibilityRole="button"
-          accessibilityLabel="再試行"
-          accessibilityHint="マーカーの読み込みを再試行します"
+          accessibilityLabel={t('map.retry')}
+          accessibilityHint={t('map.retryHint')}
         >
           <Ionicons name="refresh" size={20} color={accessibleColors.primary} />
-          <Text style={styles.retryButtonText}>再試行</Text>
+          <Text style={styles.retryButtonText}>{t('map.retry')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -672,10 +679,10 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
           style={styles.loadingContainer}
           accessible={true}
           accessibilityRole="progressbar"
-          accessibilityLabel="地図を読み込み中"
+          accessibilityLabel={t('map.loadingMap')}
         >
           <ActivityIndicator size="large" color={accessibleColors.primary} />
-          <Text style={styles.loadingText}>地図を読み込み中...</Text>
+          <Text style={styles.loadingText}>{t('map.loadingMapText')}</Text>
         </View>
       );
     }
@@ -687,12 +694,12 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title} accessibilityRole="header">
-          Map
+          {t('map.headerTitle')}
         </Text>
         <Text style={styles.subtitle}>
           {state.markers.length > 0
-            ? `${state.markers.length}件の虹の写真`
-            : '塩尻の虹の写真'}
+            ? t('map.photoCount', { count: state.markers.length })
+            : t('map.defaultSubtitle')}
         </Text>
       </View>
 
@@ -737,10 +744,10 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                 accessibilityRole="button"
                 accessibilityLabel={
                   heatmapState.isVisible
-                    ? 'ヒートマップを非表示'
-                    : 'ヒートマップを表示'
+                    ? t('map.heatmapToggleHide')
+                    : t('map.heatmapToggleShow')
                 }
-                accessibilityHint="虹の出現頻度ヒートマップの表示を切り替えます"
+                accessibilityHint={t('map.heatmapHint')}
                 accessibilityState={{ selected: heatmapState.isVisible }}
                 testID="heatmap-toggle-button"
               >
@@ -764,8 +771,8 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                 onPress={handleCenterOnUser}
                 accessible={true}
                 accessibilityRole="button"
-                accessibilityLabel="現在地に移動"
-                accessibilityHint="地図を現在地にセンタリングします"
+                accessibilityLabel={t('map.moveToCurrentLocation')}
+                accessibilityHint={t('map.moveToCurrentLocationHint')}
                 testID="current-location-button"
               >
                 <Ionicons
@@ -781,8 +788,8 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                 onPress={handleCenterOnShiojiri}
                 accessible={true}
                 accessibilityRole="button"
-                accessibilityLabel="塩尻に移動"
-                accessibilityHint="地図を塩尻市にセンタリングします"
+                accessibilityLabel={t('map.moveToShiojiri')}
+                accessibilityHint={t('map.moveToShiojiriHint')}
                 testID="center-shiojiri-button"
               >
                 <Ionicons

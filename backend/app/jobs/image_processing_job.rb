@@ -50,6 +50,13 @@ class ImageProcessingJob < ApplicationJob
 
     Rails.logger.info("[ImageProcessingJob] Processing photo #{photo_id}")
 
+    # Run image content moderation before processing
+    moderation_result = ImageModerationService.new.moderate(@photo)
+    handle_moderation_result(moderation_result)
+
+    # Only proceed with full processing if not rejected
+    return if moderation_result[:action] == :rejected
+
     # Download the original image for processing
     @photo.image.blob.open do |tempfile|
       # Extract EXIF data before any processing
@@ -257,6 +264,24 @@ class ImageProcessingJob < ApplicationJob
 
     # Apply updates if any
     @photo.update_columns(updates) if updates.present?
+  end
+
+  # Handle moderation result by updating photo status
+  #
+  # @param result [Hash] moderation result from ImageModerationService
+  def handle_moderation_result(result)
+    case result[:action]
+    when :rejected
+      @photo.update!(moderation_status: :rejected, is_visible: false)
+      Rails.logger.warn("[ImageProcessingJob] Photo #{@photo.id} rejected by moderation: #{result[:reasons].join(', ')}")
+    when :flagged
+      @photo.update!(moderation_status: :flagged)
+      Rails.logger.info("[ImageProcessingJob] Photo #{@photo.id} flagged for manual review: #{result[:reasons].join(', ')}")
+    when :approved
+      Rails.logger.debug("[ImageProcessingJob] Photo #{@photo.id} passed moderation")
+    end
+  rescue StandardError => e
+    Rails.logger.warn("[ImageProcessingJob] Failed to update moderation status: #{e.message}")
   end
 
   # Pre-generate image variants for faster access

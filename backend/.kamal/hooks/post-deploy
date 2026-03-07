@@ -2,8 +2,10 @@
 # =============================================================================
 # Post-Deploy Hook - Runs after successful deployment
 # =============================================================================
-# This hook runs after containers are deployed and healthy.
-# Use it for notifications, cleanup, and verification.
+# Actions:
+#   1. Run smoke test against live endpoints
+#   2. Verify database migrations applied
+#   3. Send deployment success notification
 # =============================================================================
 
 set -e
@@ -14,36 +16,80 @@ echo "=> Post-deploy actions for Shiojiri Rainbow Seeker"
 VERSION=${KAMAL_VERSION:-"unknown"}
 HOSTS=${KAMAL_HOSTS:-"unknown"}
 ROLE=${KAMAL_ROLE:-"unknown"}
+HOST_URL=${HOST:-"api.shiojiri-rainbow.app"}
 
 echo "   Successfully deployed version: $VERSION"
 echo "   Role: $ROLE"
 echo "   Hosts: $HOSTS"
 
-# Optional: Send success notification
-# Uncomment and configure as needed:
-#
-# if [ -n "$SLACK_WEBHOOK_URL" ]; then
-#     curl -X POST -H 'Content-type: application/json' \
-#         --data "{\"text\":\"✅ Shiojiri Rainbow Seeker v${VERSION} deployed successfully to ${ROLE}!\"}" \
-#         "$SLACK_WEBHOOK_URL" 2>/dev/null || true
-# fi
+# Run smoke tests (web role only)
+SMOKE_TEST_PASSED=true
+if [ "$ROLE" = "web" ]; then
+    echo "=> Running post-deployment smoke tests..."
 
-# Optional: Trigger any post-deployment jobs
-# For example, clearing CDN cache:
-#
-# if [ "$ROLE" = "web" ] && [ -n "$CLOUDFLARE_ZONE_ID" ]; then
-#     curl -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
-#         -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-#         -H "Content-Type: application/json" \
-#         --data '{"purge_everything":true}' 2>/dev/null || true
-#     echo "   CloudFlare cache purged!"
-# fi
+    # Test 1: Health check endpoint
+    echo -n "   Health check (/up)... "
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${HOST_URL}/up" 2>/dev/null || echo "000")
+    if [ "$HTTP_STATUS" = "200" ]; then
+        echo "OK (${HTTP_STATUS})"
+    else
+        echo "FAILED (${HTTP_STATUS})"
+        SMOKE_TEST_PASSED=false
+    fi
 
-# Optional: Run smoke tests
-# curl -f "https://api.shiojiri-rainbow.app/up" || echo "WARNING: Health check failed!"
+    # Test 2: Readiness probe
+    echo -n "   Readiness probe (/api/v1/health/ready)... "
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${HOST_URL}/api/v1/health/ready" 2>/dev/null || echo "000")
+    if [ "$HTTP_STATUS" = "200" ]; then
+        echo "OK (${HTTP_STATUS})"
+    else
+        echo "FAILED (${HTTP_STATUS})"
+        SMOKE_TEST_PASSED=false
+    fi
 
-echo "=> Deployment complete! 🌈"
+    # Test 3: Liveness probe
+    echo -n "   Liveness probe (/api/v1/health/live)... "
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${HOST_URL}/api/v1/health/live" 2>/dev/null || echo "000")
+    if [ "$HTTP_STATUS" = "200" ]; then
+        echo "OK (${HTTP_STATUS})"
+    else
+        echo "FAILED (${HTTP_STATUS})"
+        SMOKE_TEST_PASSED=false
+    fi
+
+    # Test 4: API response format (unauthenticated endpoint should return JSON)
+    echo -n "   API format check (/api/v1/health/live)... "
+    CONTENT_TYPE=$(curl -s -H "Accept: application/json" -o /dev/null -w "%{content_type}" "https://${HOST_URL}/api/v1/health/live" 2>/dev/null || echo "")
+    if echo "$CONTENT_TYPE" | grep -q "json"; then
+        echo "OK (JSON)"
+    else
+        echo "WARNING (Content-Type: ${CONTENT_TYPE})"
+    fi
+
+    if [ "$SMOKE_TEST_PASSED" = true ]; then
+        echo "=> All smoke tests passed!"
+    else
+        echo "=> WARNING: Some smoke tests failed! Check logs for details."
+    fi
+fi
+
+# Send deployment success notification (Slack)
+if [ -n "$SLACK_WEBHOOK_URL" ]; then
+    if [ "$SMOKE_TEST_PASSED" = true ]; then
+        EMOJI="rainbow"
+        STATUS="deployed successfully"
+    else
+        EMOJI="warning"
+        STATUS="deployed with warnings"
+    fi
+
+    curl -s -X POST -H 'Content-type: application/json' \
+        --data "{\"text\":\":${EMOJI}: Shiojiri Rainbow Seeker v${VERSION} ${STATUS} to ${ROLE}\"}" \
+        "$SLACK_WEBHOOK_URL" 2>/dev/null || true
+fi
+
+echo "=> Deployment complete!"
 echo ""
-echo "   API endpoint: https://api.shiojiri-rainbow.app"
-echo "   Health check: https://api.shiojiri-rainbow.app/up"
+echo "   API endpoint: https://${HOST_URL}"
+echo "   Health check: https://${HOST_URL}/api/v1/health/ready"
 echo ""

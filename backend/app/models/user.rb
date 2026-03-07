@@ -47,6 +47,7 @@ class User < ApplicationRecord
   # Validations
   validates :display_name, presence: true, length: { in: 3..30 }
   validates :locale, inclusion: { in: %w[ja en] }
+  validates :line_user_id, uniqueness: true, allow_nil: true
 
   # Role enumeration
   enum :role, { user: 0, admin: 1 }

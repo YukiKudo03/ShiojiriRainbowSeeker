@@ -2,8 +2,10 @@
 # =============================================================================
 # Pre-Deploy Hook - Runs before deploying to servers
 # =============================================================================
-# This hook runs after the image is built and pushed, but before deployment.
-# Use it for final verification and notification.
+# Actions:
+#   1. Verify image exists
+#   2. Create database backup (production only)
+#   3. Send deployment start notification
 # =============================================================================
 
 set -e
@@ -19,25 +21,43 @@ echo "   Version: $VERSION"
 echo "   Role: $ROLE"
 echo "   Hosts: $HOSTS"
 
-# Optional: Send deployment notification (Slack, Discord, etc.)
-# Uncomment and configure as needed:
-#
-# if [ -n "$SLACK_WEBHOOK_URL" ]; then
-#     curl -X POST -H 'Content-type: application/json' \
-#         --data "{\"text\":\"🚀 Deploying Shiojiri Rainbow Seeker v${VERSION} to ${ROLE}...\"}" \
-#         "$SLACK_WEBHOOK_URL" 2>/dev/null || true
-# fi
-
 # Verify the image exists in registry
 if [ -n "$KAMAL_IMAGE" ]; then
     echo "   Deploying image: $KAMAL_IMAGE"
 fi
 
-# Backup reminder (for production)
+# Database backup before deployment (production web role only)
 if [ "$ROLE" = "web" ]; then
-    echo ""
-    echo "   REMINDER: Ensure database backups are current before deployment!"
-    echo ""
+    echo "=> Creating pre-deployment database backup..."
+
+    BACKUP_DIR="/backups/shiojiri-rainbow"
+    BACKUP_FILE="${BACKUP_DIR}/pre-deploy-${VERSION}-$(date +%Y%m%d-%H%M%S).sql.gz"
+
+    # Create backup directory if it doesn't exist
+    ssh deploy@${HOSTS%% *} "mkdir -p ${BACKUP_DIR}" 2>/dev/null || true
+
+    # Create compressed database backup via docker exec
+    ssh deploy@${HOSTS%% *} \
+        "docker exec shiojiri-rainbow-seeker-db-1 \
+         pg_dump -U shiojiri_rainbow_seeker shiojiri_rainbow_seeker_production \
+         | gzip > ${BACKUP_FILE}" 2>/dev/null
+
+    if [ $? -eq 0 ]; then
+        echo "   Database backup created: ${BACKUP_FILE}"
+    else
+        echo "   WARNING: Database backup failed! Proceeding with deployment anyway."
+    fi
+
+    # Rotate old backups (keep last 10)
+    ssh deploy@${HOSTS%% *} \
+        "ls -1t ${BACKUP_DIR}/pre-deploy-*.sql.gz 2>/dev/null | tail -n +11 | xargs rm -f" 2>/dev/null || true
+fi
+
+# Send deployment start notification (Slack)
+if [ -n "$SLACK_WEBHOOK_URL" ]; then
+    curl -s -X POST -H 'Content-type: application/json' \
+        --data "{\"text\":\"Deploying Shiojiri Rainbow Seeker v${VERSION} to ${ROLE}...\"}" \
+        "$SLACK_WEBHOOK_URL" 2>/dev/null || true
 fi
 
 echo "=> Pre-deploy checks passed! Proceeding with deployment..."

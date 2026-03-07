@@ -223,11 +223,19 @@ class WeatherFetchJob < ApplicationJob
     # Set center location
     radar_datum.set_center_location(@lat, @lng)
 
+    # Extract precipitation data from weather conditions at capture time
+    capture_weather = @photo.weather_conditions.find_by(
+      timestamp: round_to_interval(@captured_at)
+    )
+
+    precipitation_intensity = extract_precipitation_intensity(capture_weather)
+    precipitation_area = build_precipitation_area(@lat, @lng, capture_weather)
+
     # Update with fetched data
     radar_datum.assign_attributes(
       radius: 50_000, # 50km default radius
-      precipitation_intensity: nil, # Would need pixel analysis to extract
-      precipitation_area: nil # Would need tile analysis
+      precipitation_intensity: precipitation_intensity,
+      precipitation_area: precipitation_area
     )
 
     radar_datum.save!
@@ -272,5 +280,73 @@ class WeatherFetchJob < ApplicationJob
     else
       nil
     end
+  end
+
+  # Extract precipitation intensity from weather conditions
+  #
+  # Uses rain_1h/snow_1h from weather data if available,
+  # otherwise estimates from weather code.
+  #
+  # @param weather_condition [WeatherCondition, nil] the weather condition record
+  # @return [Float, nil] precipitation intensity in mm/h
+  def extract_precipitation_intensity(weather_condition)
+    return nil unless weather_condition
+
+    # Direct precipitation measurement if available
+    return weather_condition.precipitation if weather_condition.precipitation&.positive?
+
+    # Estimate from weather code
+    code = weather_condition.weather_code&.to_i
+    return nil unless code
+
+    case code
+    when 500      then 0.5   # light rain
+    when 501      then 2.5   # moderate rain
+    when 502      then 7.5   # heavy rain
+    when 503, 504 then 15.0  # very heavy rain
+    when 511      then 1.0   # freezing rain
+    when 520      then 1.0   # light shower rain
+    when 521      then 5.0   # shower rain
+    when 522      then 10.0  # heavy shower rain
+    when 300..321 then 0.3   # drizzle
+    when 200..232 then 3.0   # thunderstorm
+    when 600..622 then 1.0   # snow (water equivalent)
+    end
+  end
+
+  # Build a simplified precipitation area polygon around the observation point
+  #
+  # Creates a bounding box based on weather conditions to approximate
+  # the precipitation coverage area.
+  #
+  # @param lat [Float] center latitude
+  # @param lng [Float] center longitude
+  # @param weather_condition [WeatherCondition, nil] the weather condition
+  # @return [Hash, nil] GeoJSON-style polygon or nil
+  def build_precipitation_area(lat, lng, weather_condition)
+    return nil unless weather_condition
+    return nil unless weather_condition.precipitation&.positive? || weather_condition.weather_code&.to_i&.between?(200, 622)
+
+    # Estimate area radius based on weather code (in degrees, ~1 degree ≈ 111km)
+    code = weather_condition.weather_code&.to_i
+    radius_deg = case code
+                 when 200..232 then 0.3  # thunderstorms - localized
+                 when 300..321 then 0.5  # drizzle - wider coverage
+                 when 500..531 then 0.4  # rain
+                 when 600..622 then 0.5  # snow - wider coverage
+                 else 0.3
+    end
+
+    # Build a simple bounding box as GeoJSON polygon
+    {
+      type: "Polygon",
+      coordinates: [[
+        [lng - radius_deg, lat - radius_deg],
+        [lng + radius_deg, lat - radius_deg],
+        [lng + radius_deg, lat + radius_deg],
+        [lng - radius_deg, lat + radius_deg],
+        [lng - radius_deg, lat - radius_deg]
+      ]]
+    }
   end
 end

@@ -166,7 +166,7 @@ module Api
         end
 
         # Check weather API (if configured)
-        if ENV["OPENWEATHER_API_KEY"].present?
+        if ENV["OPENWEATHERMAP_API_KEY"].present?
           services[:weather_api] = { status: "configured" }
         end
 

@@ -1,8 +1,8 @@
 # テスト実行状況レポート
 
-**日時**: 2026-01-24
+**最終更新**: 2026-03-07
 **Spec**: shiojiri-rainbow-seeker
-**全体ステータス**: 実装完了 (73/73タスク)
+**全体ステータス**: v1.1 課題修正・機能拡張実装中
 
 ---
 
@@ -11,8 +11,10 @@
 | テスト | ステータス | 詳細 |
 |--------|------------|------|
 | Mobile TypeScript | ✅ 成功 | `npm run type-check` パス |
-| Backend RSpec | ⚠️ 未実行 | PostGISインストールが必要 |
+| Mobile Unit Tests | ✅ 追加 | Jest によるサービス・ストア・フックのテスト |
+| Backend RSpec | ⚠️ 未実行 | PostGISインストールが必要 (56 specファイル) |
 | E2E (Detox) | ⏸️ 設定済み | 実行には別途セットアップが必要 |
+| 負荷テスト (k6) | ✅ 設定済み | smoke, load, spike, stress シナリオ |
 
 ---
 
@@ -24,13 +26,15 @@ cd mobile && npm run type-check
 ```
 **結果**: ✅ 成功
 
-### 修正した問題
-1. **アイコン名エラー**: `"rainbow"` は Ionicons に存在しないため `"color-palette"` に変更
-   - `src/screens/auth/LoginScreen.tsx:115`
-   - `src/screens/onboarding/OnboardingScreen.tsx:58`
+### ユニットテスト
+```bash
+cd mobile && npm test
+```
 
-2. **E2E テスト除外**: e2e フォルダを `tsconfig.json` の exclude に追加
-   - E2E テストは Jest 型定義が別途必要なため、メインのチェックから除外
+テスト対象:
+- `__tests__/services/` - API サービス層
+- `__tests__/store/` - Zustand ストア
+- `__tests__/hooks/` - カスタムフック
 
 ### 実行可能なコマンド
 ```bash
@@ -38,6 +42,8 @@ cd mobile
 npm run type-check    # TypeScript チェック
 npm run lint          # ESLint チェック
 npm run lint:fix      # ESLint 自動修正
+npm test              # ユニットテスト
+npm run test:coverage # カバレッジレポート付き
 ```
 
 ---
@@ -46,15 +52,6 @@ npm run lint:fix      # ESLint 自動修正
 
 ### 前提条件
 PostGIS 拡張が PostgreSQL にインストールされている必要があります。
-
-### PostGIS インストール手順 (macOS)
-```bash
-# Homebrew で PostGIS をインストール
-brew install postgis
-
-# PostgreSQL を再起動
-brew services restart postgresql@15
-```
 
 ### データベースセットアップ
 ```bash
@@ -69,78 +66,79 @@ cd backend
 bundle exec rspec
 ```
 
-### 現在の問題
-- PostGIS 拡張がシステムにインストールされていない
-- `brew install postgis` 実行時にパーミッションエラーが発生
-- 解決策: Homebrew のパーミッションを修正するか、手動でPostGISをインストール
-
-```bash
-# Homebrew パーミッション修正
-sudo chown -R $(whoami) $(brew --prefix)/*
-
-# その後、再度インストール
-brew install postgis
-```
+### テストファイル構成
+| カテゴリ | ファイル数 | 対象 |
+|----------|-----------|------|
+| Models | 4 | User, Photo, Comment, DeviceToken |
+| Controllers | 2 | ErrorHandler, LocaleSetter |
+| Requests | 8 | Auth, Users, Photos, Maps, Notifications, Social, Statistics, Health |
+| Services | 8 | Auth, Photo, Weather, Map, Moderation, Notification, AccountDeletion, Analysis |
+| Jobs | 6 | WeatherFetch, RainbowAlert, SocialNotification, DataExport, AccountDeletion, Test |
+| Serializers | 1 | UserSerializer |
+| Policies | 1 | ReportPolicy |
+| Validators | 1 | ContentValidator |
+| External APIs | 3 | WeatherApi, RadarApi, GeocodingApi |
+| Initializers | 2 | FCM, Rpush |
+| Mailers | 1 | DataExportMailer |
 
 ---
 
 ## E2E テスト (Detox)
 
-### セットアップ済みファイル
-- `mobile/e2e/specs/` - テストスペック
-- `mobile/e2e/helpers/` - テストヘルパー
-- `mobile/.detoxrc.js` - Detox 設定
+### テストスペック
+- `auth.e2e.ts` - ログイン/新規登録
+- `onboarding.e2e.ts` - オンボーディングフロー
+- `photo.e2e.ts` - 写真撮影/アップロード
+- `map.e2e.ts` - 地図機能
+- `social.e2e.ts` - ソーシャル機能
+- `profile.e2e.ts` - プロフィール管理
 
 ### 実行手順
 ```bash
 cd mobile
-
-# iOS シミュレータ用ビルド
 npm run e2e:build:ios
-
-# テスト実行
 npm run e2e:test:ios
 ```
 
 ---
 
-## 次のステップ
+## 負荷テスト (k6)
 
-1. **PostGIS のインストール**
-   ```bash
-   sudo chown -R $(whoami) $(brew --prefix)/*
-   brew install postgis
-   ```
+### シナリオ
+- `smoke.js` - 基本動作確認 (1-2 VU)
+- `load.js` - 通常負荷テスト (50 VU)
+- `spike.js` - スパイクテスト (200 VU)
+- `stress.js` - ストレステスト (100 VU)
 
-2. **バックエンドテストの実行**
-   ```bash
-   cd backend
-   bin/rails db:create db:migrate RAILS_ENV=test
-   bundle exec rspec
-   ```
-
-3. **E2E テスト環境のセットアップ** (オプション)
-   ```bash
-   cd mobile
-   npm run e2e:build:ios
-   npm run e2e:test:ios
-   ```
+### 実行手順
+```bash
+k6 run k6/scenarios/smoke.js
+```
 
 ---
 
-## 実装完了タスク
+## v1.1 で対応した課題
 
-全73タスクが完了しています:
+### Critical
+- [x] C-1: LINE Messaging API通知連携
+- [x] C-2: 気象API統合の修正（環境変数名の統一）
+- [x] C-3: モバイルユニットテスト基盤構築
 
-- **フェーズ1**: プロジェクト基盤構築 (8タスク) ✅
-- **フェーズ1M**: モバイルアプリ基盤構築 (4タスク) ✅
-- **フェーズ2**: 認証システム (4タスク) ✅
-- **フェーズ3**: 写真管理 (5タスク) ✅
-- **フェーズ4**: 気象データ (3タスク) ✅
-- **フェーズ5**: 地図機能 (4タスク) ✅
-- **フェーズ6**: LINE通知 (3タスク) ✅
-- **フェーズ7**: ソーシャル機能 (4タスク) ✅
-- **フェーズ8**: 統計機能 (3タスク) ✅
-- **フェーズ9**: ユーザー管理 (3タスク) ✅
-- **フェーズ10**: 管理者機能 (3タスク) ✅
-- **モバイル実装**: 画面・コンポーネント (29タスク) ✅
+### Medium
+- [x] M-2: レーダーデータの降水強度・降水面積抽出
+- [x] M-3: rack-attack によるグローバルAPIレート制限
+- [x] M-4: `authenticate_user_optional` の例外捕捉を限定化
+- [x] M-5: SocialController のシリアライズを Alba に統一
+- [x] M-6: MapScreen のリトライバグ修正
+- [x] M-7: `.env.example` の変数追加・修正
+- [x] M-8: TEST_STATUS.md の更新
+
+### Minor
+- [x] L-1: MapScreen i18n ハードコード文字列の抽出
+- [x] L-4: Kamal デプロイフック実装
+
+### 機能拡張
+- [x] F-1: LINE Messaging API 連携（C-1に含む）
+- [x] F-2: 画像モデレーションサービス
+- [x] F-3: グローバルAPIレート制限（M-3に含む）
+- [x] F-4: モバイルユニットテスト（C-3に含む）
