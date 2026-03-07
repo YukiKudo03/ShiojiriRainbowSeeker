@@ -6,7 +6,7 @@
       "description": "Local development environment"
     },
     "staging": {
-      "baseUrl": "https://staging-api.shiojiri-rainbow.example.com",
+      "baseUrl": "https://staging-api.shiojiri-rainbow.app",
       "apiVersion": "v1",
       "description": "Staging environment for pre-production testing"
     },

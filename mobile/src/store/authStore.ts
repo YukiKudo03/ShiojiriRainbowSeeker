@@ -11,6 +11,8 @@
 import { create } from 'zustand';
 
 import { authService, getErrorMessage } from '../services/authService';
+import { connectCable, disconnectCable } from '../services/cableService';
+import { setUserContext, clearUserContext } from '../services/sentryService';
 
 import type { User, AuthState, AuthActions } from '../types/auth';
 
@@ -45,6 +47,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const user = await authService.login(email, password);
+      setUserContext({ id: user.id, email: user.email, displayName: user.displayName });
+      connectCable().catch(() => {}); // Non-blocking cable connection
       set({
         user,
         isAuthenticated: true,
@@ -97,6 +101,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       // Log but don't throw - still clear local state
       console.warn('Logout error:', error);
     } finally {
+      disconnectCable();
+      clearUserContext();
       set({
         user: null,
         isAuthenticated: false,
@@ -134,6 +140,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const user = await authService.checkAuth();
 
       if (user) {
+        setUserContext({ id: user.id, email: user.email, displayName: user.displayName });
+        connectCable().catch(() => {}); // Non-blocking cable connection
         set({
           user,
           isAuthenticated: true,

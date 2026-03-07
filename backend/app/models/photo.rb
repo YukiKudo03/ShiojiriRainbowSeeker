@@ -112,6 +112,9 @@ class Photo < ApplicationRecord
   # Moderation status enumeration
   enum :moderation_status, { pending: 0, approved: 1, hidden: 2, deleted: 3 }
 
+  # Callbacks
+  after_create_commit :broadcast_new_photo
+
   # Scopes
   scope :visible, -> { where(is_visible: true, moderation_status: :approved) }
   scope :recent, -> { order(captured_at: :desc) }
@@ -274,6 +277,27 @@ class Photo < ApplicationRecord
   end
 
   private
+
+  # =============================================================================
+  # Broadcast Methods
+  # =============================================================================
+
+  # Broadcast new photo to the photo_feed channel
+  def broadcast_new_photo
+    ActionCable.server.broadcast("photo_feed", {
+      type: "new_photo",
+      photo: {
+        id: id,
+        title: title,
+        user: { id: user.id, display_name: user.display_name },
+        latitude: latitude,
+        longitude: longitude,
+        thumbnail_url: thumbnail_url,
+        captured_at: captured_at&.iso8601,
+        created_at: created_at.iso8601
+      }
+    })
+  end
 
   # =============================================================================
   # Private Validation Methods

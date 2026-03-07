@@ -19,10 +19,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { initializeI18n } from './src/i18n';
 import { RootNavigator } from './src/navigation';
+import { initSentry, wrapWithSentry } from './src/services/sentryService';
 import { useAuthStore } from './src/store/authStore';
 import { useOnboardingStore } from './src/store/onboardingStore';
 
-export default function App() {
+// Initialize Sentry before app renders
+initSentry();
+
+function App() {
   // Authentication state from Zustand store
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isAuthInitialized = useAuthStore((state) => state.isInitialized);
@@ -95,6 +99,8 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
+
+export default wrapWithSentry(App);
 
 const styles = StyleSheet.create({
   container: {

@@ -90,7 +90,6 @@ export async function updateMyProfile(
   }
 
   if (request.profileImage) {
-    // @ts-expect-error - FormData.append accepts this format in React Native
     formData.append('user[profile_image]', {
       uri: request.profileImage.uri,
       type: request.profileImage.type,

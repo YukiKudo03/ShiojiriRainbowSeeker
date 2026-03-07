@@ -242,6 +242,14 @@ jobs:
           sleep 30
           curl -f https://staging-api.shiojiri-rainbow.app/up || exit 1
 
+      - name: Run post-deploy smoke test
+        if: success()
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: k6/scenarios/smoke.js
+        env:
+          K6_ENV: staging
+
       - name: Notify on success
         if: success()
         run: |

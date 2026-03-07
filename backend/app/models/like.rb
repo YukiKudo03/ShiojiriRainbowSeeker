@@ -24,10 +24,29 @@ class Like < ApplicationRecord
   # Validations - prevent duplicate likes
   validates :user_id, uniqueness: { scope: :photo_id, message: "has already liked this photo" }
 
+  # Callbacks
+  after_create_commit :broadcast_like
+
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
   scope :by_user, ->(user) { where(user: user) }
   scope :for_photo, ->(photo) { where(photo: photo) }
+
+  private
+
+  # Notify photo owner of new like via notifications channel
+  def broadcast_like
+    return if user_id == photo.user_id # Don't notify self-likes
+
+    NotificationsChannel.broadcast_to(photo.user, {
+      type: "new_like",
+      photo_id: photo_id,
+      user: { id: user.id, display_name: user.display_name },
+      like_count: photo.reload.like_count
+    })
+  end
+
+  public
 
   # Check if like belongs to a given user
   #

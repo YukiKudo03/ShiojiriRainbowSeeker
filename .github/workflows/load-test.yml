@@ -1,0 +1,96 @@
+# Load Test Workflow - k6 Performance Tests
+# ==========================================
+# This workflow runs k6 load tests against the staging environment.
+#
+# Runs on:
+# - Manual trigger with scenario type selection
+# - After Deploy workflow completes on develop branch (smoke test)
+#
+# Task 57: CI/CD Pipeline Construction
+# Requirements: F-6
+
+name: Load Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Load test scenario to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+          - smoke
+          - load
+          - stress
+          - spike
+  workflow_run:
+    workflows: ["Deploy"]
+    types:
+      - completed
+    branches:
+      - develop
+
+env:
+  K6_ENV: staging
+
+jobs:
+  # ==========================================================================
+  # Run k6 Load Test
+  # ==========================================================================
+  load-test:
+    name: k6 Load Test
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine scenario
+        id: scenario
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "type=${{ github.event.inputs.scenario }}" >> $GITHUB_OUTPUT
+          else
+            echo "type=smoke" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run k6 load test
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: k6/scenarios/${{ steps.scenario.outputs.type }}.js
+        env:
+          K6_ENV: staging
+
+      - name: Generate results summary
+        if: always()
+        run: |
+          echo "# k6 Load Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scenario:** ${{ steps.scenario.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** staging" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "| Result | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Load Test | :white_check_mark: Passed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Result | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Load Test | :x: Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Save HTML summary as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-results-${{ steps.scenario.outputs.type }}-${{ github.run_number }}
+          path: |
+            summary.html
+            summary.json
+          retention-days: 30
+          if-no-files-found: ignore

@@ -23,7 +23,54 @@ import type {
   DeviceRegistrationResponse,
   NotificationType,
   Notification,
+  NotificationData,
 } from '../types/notification';
+
+/** Raw notification shape from the API (snake_case or camelCase) */
+interface RawNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  data?: NotificationData;
+  is_read?: boolean;
+  isRead?: boolean;
+  created_at?: string;
+  createdAt?: string;
+}
+
+/** Raw paginated notifications response from the API */
+interface RawNotificationsResponse {
+  notifications: RawNotification[];
+  pagination?: {
+    current_page?: number;
+    currentPage?: number;
+    total_pages?: number;
+    totalPages?: number;
+    total_count?: number;
+    totalCount?: number;
+    per_page?: number;
+    perPage?: number;
+  };
+  unread_count?: number;
+  unreadCount?: number;
+}
+
+/** Raw notification settings from the API (snake_case or camelCase) */
+interface RawNotificationSettings {
+  rainbow_alerts?: boolean;
+  rainbowAlerts?: boolean;
+  likes?: boolean;
+  comments?: boolean;
+  system?: boolean;
+  alert_radius_km?: NotificationSettings['alertRadiusKm'];
+  alertRadiusKm?: NotificationSettings['alertRadiusKm'];
+  quiet_hours_start?: string | null;
+  quietHoursStart?: string | null;
+  quiet_hours_end?: string | null;
+  quietHoursEnd?: string | null;
+  timezone?: string;
+}
 
 /**
  * Configure notification handler for foreground notifications
@@ -124,8 +171,7 @@ export const fetchNotifications = async (
     params.filter = filter;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await apiClient.get<{ data: any }>('/notifications', { params });
+  const response = await apiClient.get<{ data: RawNotificationsResponse }>('/notifications', { params });
 
   // Transform snake_case to camelCase
   const data = response.data.data;
@@ -144,15 +190,14 @@ export const fetchNotifications = async (
 /**
  * Transform notification from API response to local type
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const transformNotification = (notification: any): Notification => ({
+const transformNotification = (notification: RawNotification): Notification => ({
   id: notification.id,
   type: notification.type,
   title: notification.title,
   body: notification.body,
   data: notification.data || {},
   isRead: notification.is_read ?? notification.isRead ?? false,
-  createdAt: notification.created_at ?? notification.createdAt,
+  createdAt: notification.created_at ?? notification.createdAt ?? '',
 });
 
 /**
@@ -171,8 +216,7 @@ export const markNotificationsAsRead = async (notificationIds?: string[]): Promi
  * Get notification settings from the API
  */
 export const getNotificationSettings = async (): Promise<NotificationSettings> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await apiClient.get<{ data: { settings: any } }>('/notifications/settings');
+  const response = await apiClient.get<{ data: { settings: RawNotificationSettings } }>('/notifications/settings');
 
   const settings = response.data.data.settings;
 
@@ -208,8 +252,7 @@ export const updateNotificationSettings = async (
   if (settings.quietHoursEnd !== undefined) apiSettings.quiet_hours_end = settings.quietHoursEnd;
   if (settings.timezone !== undefined) apiSettings.timezone = settings.timezone;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await apiClient.put<{ data: { settings: any } }>('/notifications/settings', apiSettings);
+  const response = await apiClient.put<{ data: { settings: RawNotificationSettings } }>('/notifications/settings', apiSettings);
 
   const responseSettings = response.data.data.settings;
 

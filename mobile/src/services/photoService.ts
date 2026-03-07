@@ -361,7 +361,6 @@ export async function uploadPhoto(request: PhotoUploadRequest): Promise<Photo> {
   const formData = new FormData();
 
   // Add image file
-  // @ts-expect-error - FormData.append accepts this format in React Native
   formData.append('photo[image]', {
     uri: request.image.uri,
     type: request.image.type,

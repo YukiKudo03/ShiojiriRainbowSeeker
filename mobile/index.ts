@@ -5,9 +5,8 @@ import { setE2ETestMode } from './src/utils/testMode';
 
 // Set E2E test mode flag if running under Detox
 // This must run before App renders to disable animations properly
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const globalAny = global as any;
-if (globalAny.__DETOX_TESTING) {
+declare const global: typeof globalThis & { __DETOX_TESTING?: boolean };
+if (global.__DETOX_TESTING) {
   setE2ETestMode(true);
 }
 

@@ -17,18 +17,71 @@ import type {
   Comment,
 } from '../types/social';
 
+/** Raw comment shape from the API (snake_case or camelCase) */
+interface RawComment {
+  id: string;
+  content: string;
+  user: { id: string; display_name?: string; displayName?: string };
+  created_at?: string;
+  createdAt?: string;
+  is_own?: boolean;
+  isOwn?: boolean;
+}
+
+/** Raw like/unlike response from the API */
+interface RawLikeResponse {
+  liked: boolean;
+  like_count?: number;
+  likeCount?: number;
+}
+
+/** Raw paginated comments response from the API */
+interface RawCommentsResponse {
+  comments: RawComment[];
+  pagination?: {
+    current_page?: number;
+    currentPage?: number;
+    total_pages?: number;
+    totalPages?: number;
+    total_count?: number;
+    totalCount?: number;
+    per_page?: number;
+    perPage?: number;
+  };
+}
+
+/** Raw create-comment response from the API */
+interface RawCreateCommentResponse {
+  comment: RawComment;
+  comment_count?: number;
+  commentCount?: number;
+}
+
+/** Raw delete-comment response from the API */
+interface RawDeleteCommentResponse {
+  message: string;
+  comment_count?: number;
+  commentCount?: number;
+}
+
+/** Raw report response from the API */
+interface RawReportResponse {
+  report_id?: string;
+  reportId?: string;
+  message: string;
+}
+
 /**
  * Transform snake_case API response to camelCase
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const transformComment = (comment: any): Comment => ({
+const transformComment = (comment: RawComment): Comment => ({
   id: comment.id,
   content: comment.content,
   user: {
     id: comment.user.id,
-    displayName: comment.user.display_name ?? comment.user.displayName,
+    displayName: comment.user.display_name ?? comment.user.displayName ?? '',
   },
-  createdAt: comment.created_at ?? comment.createdAt,
+  createdAt: comment.created_at ?? comment.createdAt ?? '',
   isOwn: comment.is_own ?? comment.isOwn ?? false,
 });
 
@@ -37,15 +90,14 @@ const transformComment = (comment: any): Comment => ({
  * @param photoId The photo ID to like
  */
 export const likePhoto = async (photoId: string): Promise<LikeResponse> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await apiClient.post<{ data: any }>(
+  const response = await apiClient.post<{ data: RawLikeResponse }>(
     `/photos/${photoId}/likes`
   );
 
   const data = response.data.data;
   return {
     liked: data.liked,
-    likeCount: data.like_count ?? data.likeCount,
+    likeCount: data.like_count ?? data.likeCount ?? 0,
   };
 };
 
@@ -54,15 +106,14 @@ export const likePhoto = async (photoId: string): Promise<LikeResponse> => {
  * @param photoId The photo ID to unlike
  */
 export const unlikePhoto = async (photoId: string): Promise<LikeResponse> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await apiClient.delete<{ data: any }>(
+  const response = await apiClient.delete<{ data: RawLikeResponse }>(
     `/photos/${photoId}/likes`
   );
 
   const data = response.data.data;
   return {
     liked: data.liked,
-    likeCount: data.like_count ?? data.likeCount,
+    likeCount: data.like_count ?? data.likeCount ?? 0,
   };
 };
 
@@ -92,8 +143,7 @@ export const getComments = async (
   page = 1,
   perPage = 20
 ): Promise<CommentsResponse> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await apiClient.get<{ data: any }>(
+  const response = await apiClient.get<{ data: RawCommentsResponse }>(
     `/photos/${photoId}/comments`,
     {
       params: { page, per_page: perPage },
@@ -121,8 +171,7 @@ export const createComment = async (
   photoId: string,
   content: string
 ): Promise<CreateCommentResponse> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await apiClient.post<{ data: any }>(
+  const response = await apiClient.post<{ data: RawCreateCommentResponse }>(
     `/photos/${photoId}/comments`,
     { content }
   );
@@ -130,7 +179,7 @@ export const createComment = async (
   const data = response.data.data;
   return {
     comment: transformComment(data.comment),
-    commentCount: data.comment_count ?? data.commentCount,
+    commentCount: data.comment_count ?? data.commentCount ?? 0,
   };
 };
 
@@ -141,15 +190,14 @@ export const createComment = async (
 export const deleteComment = async (
   commentId: string
 ): Promise<DeleteCommentResponse> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await apiClient.delete<{ data: any }>(
+  const response = await apiClient.delete<{ data: RawDeleteCommentResponse }>(
     `/comments/${commentId}`
   );
 
   const data = response.data.data;
   return {
     message: data.message,
-    commentCount: data.comment_count ?? data.commentCount,
+    commentCount: data.comment_count ?? data.commentCount ?? 0,
   };
 };
 
@@ -160,8 +208,7 @@ export const deleteComment = async (
 export const reportContent = async (
   request: CreateReportRequest
 ): Promise<ReportResponse> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await apiClient.post<{ data: any }>('/reports', {
+  const response = await apiClient.post<{ data: RawReportResponse }>('/reports', {
     reportable_type: request.reportableType,
     reportable_id: request.reportableId,
     reason: request.reason,
@@ -169,7 +216,7 @@ export const reportContent = async (
 
   const data = response.data.data;
   return {
-    reportId: data.report_id ?? data.reportId,
+    reportId: data.report_id ?? data.reportId ?? '',
     message: data.message,
   };
 };

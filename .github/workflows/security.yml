@@ -219,30 +219,29 @@ jobs:
   # ==========================================================================
   # OWASP ZAP Scan (for deployed environments)
   # ==========================================================================
-  # Note: This job is disabled by default. Enable it when you have a staging
-  # environment to scan. OWASP ZAP performs dynamic analysis on running applications.
-  #
-  # owasp-zap:
-  #   name: OWASP ZAP Dynamic Scan
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name == 'schedule' || github.event.inputs.full_scan == 'true'
-  #
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #
-  #     - name: OWASP ZAP Baseline Scan
-  #       uses: zaproxy/action-baseline@v0.12.0
-  #       with:
-  #         target: 'https://staging.your-app.com/api'
-  #         rules_file_name: '.zap/rules.tsv'
-  #         cmd_options: '-a'
-  #
-  #     - name: Upload ZAP Report
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: zap-report
-  #         path: report_html.html
+  owasp-zap:
+    name: OWASP ZAP Dynamic Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.full_scan == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: 'https://staging-api.shiojiri-rainbow.app/api/v1'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: Upload ZAP Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: report_html.html
+          retention-days: 30
 
   # ==========================================================================
   # Notification (optional)

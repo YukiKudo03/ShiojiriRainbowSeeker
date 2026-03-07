@@ -89,6 +89,52 @@ services:
     command: ["./bin/rails", "server", "-b", "0.0.0.0"]
 
   # ===========================================================================
+  # InfluxDB (for k6 test results and metrics)
+  # ===========================================================================
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: shiojiri-rainbow-influxdb
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD:-influxdb_dev_password}
+      DOCKER_INFLUXDB_INIT_ORG: shiojiri-rainbow
+      DOCKER_INFLUXDB_INIT_BUCKET: k6
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:-dev-token}
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    ports:
+      - "${INFLUXDB_PORT:-8086}:8086"
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===========================================================================
+  # Grafana (dashboards for k6 and API monitoring)
+  # ===========================================================================
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: shiojiri-rainbow-grafana
+    restart: unless-stopped
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-grafana_dev_password}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:-dev-token}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+
+  # ===========================================================================
   # Redis (Optional - for Action Cable or caching if not using Solid variants)
   # ===========================================================================
   # Uncomment if you need Redis for any specific use case
@@ -118,6 +164,10 @@ volumes:
     name: shiojiri-rainbow-cache
   rails_storage:
     name: shiojiri-rainbow-storage
+  influxdb_data:
+    name: shiojiri-rainbow-influxdb
+  grafana_data:
+    name: shiojiri-rainbow-grafana
   # redis_data:
   #   name: shiojiri-rainbow-redis
 

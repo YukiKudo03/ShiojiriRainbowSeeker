@@ -12,7 +12,7 @@ const environments = {
     apiVersion: "v1",
   },
   staging: {
-    baseUrl: "https://staging-api.shiojiri-rainbow.example.com",
+    baseUrl: "https://staging-api.shiojiri-rainbow.app",
     apiVersion: "v1",
   },
   production: {
@@ -102,6 +102,26 @@ export const mapThresholds = {
   "http_req_duration{name:map_heatmap}": ["p(95)<2000"],
 };
 
+/**
+ * Get InfluxDB output configuration for K6_OUT.
+ *
+ * Usage:
+ *   K6_OUT=influxdb=http://localhost:8086/k6 k6 run ...
+ *
+ * Or programmatically via K6_INFLUXDB_URL env var.
+ *
+ * @returns {Object} k6 output options for InfluxDB if K6_INFLUXDB_URL is set
+ */
+export function getInfluxDBOutput() {
+  const influxUrl = __ENV.K6_INFLUXDB_URL;
+  if (!influxUrl) {
+    return {};
+  }
+  return {
+    out: `influxdb=${influxUrl}`,
+  };
+}
+
 export default {
   getConfig,
   apiUrl,
@@ -111,4 +131,5 @@ export default {
   thresholds,
   photoUploadThresholds,
   mapThresholds,
+  getInfluxDBOutput,
 };

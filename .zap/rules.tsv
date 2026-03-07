@@ -1,0 +1,5 @@
+10202	IGNORE	(Absence of Anti-CSRF Tokens)
+10010	IGNORE	(Cookie No HttpOnly Flag)
+10011	IGNORE	(Cookie Without Secure Flag)
+10054	IGNORE	(Cookie without SameSite Attribute)
+10098	IGNORE	(Cross-Domain Misconfiguration)

@@ -20,6 +20,7 @@ import {
   clearTokens,
   isAccessTokenExpired,
 } from './tokenStorage';
+import { addBreadcrumb } from './sentryService';
 
 import type { ApiError, RefreshTokenResponse } from '../types/auth';
 
@@ -115,6 +116,14 @@ const createApiClient = (): AxiosInstance => {
   client.interceptors.response.use(
     (response) => response,
     async (error: AxiosError<ApiError>) => {
+      // Track 5xx errors as Sentry breadcrumbs
+      if (error.response && error.response.status >= 500) {
+        addBreadcrumb('http', `Server error ${error.response.status}`, {
+          url: error.config?.url,
+          method: error.config?.method,
+          status: error.response.status,
+        }, 'error');
+      }
       const originalRequest = error.config as InternalAxiosRequestConfig & {
         _retry?: boolean;
       };

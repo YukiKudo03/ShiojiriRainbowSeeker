@@ -1,0 +1,125 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "API Health Overview",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb" },
+          "query": "from(bucket: \"k6\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\" and r._field == \"value\")\n  |> mean()\n  |> yield(name: \"avg_duration\")"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 100 },
+              { "color": "red", "value": 200 }
+            ]
+          }
+        }
+      },
+      "options": { "graphMode": "area", "textMode": "auto" }
+    },
+    {
+      "title": "Total Requests",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb" },
+          "query": "from(bucket: \"k6\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"http_reqs\" and r._field == \"value\")\n  |> count()\n  |> yield(name: \"total\")"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "options": { "graphMode": "area", "textMode": "auto" }
+    },
+    {
+      "title": "Failed Requests",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb" },
+          "query": "from(bucket: \"k6\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"http_req_failed\" and r._field == \"value\" and r._value == 1)\n  |> count()\n  |> yield(name: \"failed\")"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": { "graphMode": "area", "textMode": "auto" }
+    },
+    {
+      "title": "Response Time Distribution",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb" },
+          "query": "from(bucket: \"k6\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\" and r._field == \"value\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean)\n  |> yield(name: \"avg\")",
+          "refId": "avg"
+        },
+        {
+          "datasource": { "type": "influxdb" },
+          "query": "from(bucket: \"k6\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\" and r._field == \"value\")\n  |> aggregateWindow(every: v.windowPeriod, fn: (columns, tables=<-) => tables |> quantile(q: 0.95))\n  |> yield(name: \"p95\")",
+          "refId": "p95"
+        },
+        {
+          "datasource": { "type": "influxdb" },
+          "query": "from(bucket: \"k6\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\" and r._field == \"value\")\n  |> aggregateWindow(every: v.windowPeriod, fn: max)\n  |> yield(name: \"max\")",
+          "refId": "max"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms" } }
+    },
+    {
+      "title": "Throughput over Time",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb" },
+          "query": "from(bucket: \"k6\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"http_reqs\" and r._field == \"value\")\n  |> aggregateWindow(every: v.windowPeriod, fn: count)\n  |> yield(name: \"throughput\")"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "title": "Data Sent / Received",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb" },
+          "query": "from(bucket: \"k6\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"data_received\" or r._measurement == \"data_sent\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> aggregateWindow(every: v.windowPeriod, fn: sum)\n  |> yield(name: \"data\")"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["api", "monitoring"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "API Monitoring Dashboard",
+  "uid": "api-monitoring"
+}

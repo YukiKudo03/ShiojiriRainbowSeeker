@@ -39,6 +39,35 @@ import type { PhotoDetailScreenProps } from '../../types/navigation';
 import type { WeatherCondition, RadarData } from '../../types/photo';
 import type { PhotoWithSocial, ReportableType } from '../../types/social';
 
+/** Raw photo detail response from the API (snake_case or camelCase) */
+interface RawPhotoDetail {
+  id: string;
+  title?: string;
+  description?: string;
+  capturedAt?: string;
+  captured_at?: string;
+  location?: { latitude: number; longitude: number; name?: string } | null;
+  imageUrls?: { thumbnail: string; medium: string; large?: string; original?: string };
+  image_url?: string;
+  imageUrl?: string;
+  createdAt?: string;
+  created_at?: string;
+  user: { id: string; displayName?: string; display_name?: string };
+  likeCount?: number;
+  like_count?: number;
+  commentCount?: number;
+  comment_count?: number;
+  likedByCurrentUser?: boolean;
+  is_liked?: boolean;
+  isOwner?: boolean;
+  is_own?: boolean;
+  weatherSummary?: {
+    temperature?: number;
+    humidity?: number;
+    weatherDescription?: string;
+  };
+}
+
 const screenHeight = Dimensions.get('window').height;
 
 export const PhotoDetailScreen: React.FC<PhotoDetailScreenProps> = ({
@@ -79,8 +108,7 @@ export const PhotoDetailScreen: React.FC<PhotoDetailScreenProps> = ({
         }
         setError(null);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const response = await apiClient.get<{ data: any }>(
+        const response = await apiClient.get<{ data: RawPhotoDetail }>(
           `/photos/${photoId}`
         );
         const data = response.data.data;

@@ -34,6 +34,9 @@ class Comment < ApplicationRecord
   validates :content, presence: true, length: { maximum: 500 }
   validates :content, content: true  # Banned word filter (FR-8 AC-8.6)
 
+  # Callbacks
+  after_create_commit :broadcast_comment
+
   # Scopes
   scope :visible, -> { where(is_visible: true) }
   scope :hidden, -> { where(is_visible: false) }
@@ -64,6 +67,27 @@ class Comment < ApplicationRecord
   def owned_by?(check_user)
     user_id == check_user&.id
   end
+
+  private
+
+  # Notify photo owner of new comment via notifications channel
+  def broadcast_comment
+    return unless user_id # Skip for anonymized comments
+    return if user_id == photo.user_id # Don't notify own comments
+
+    NotificationsChannel.broadcast_to(photo.user, {
+      type: "new_comment",
+      photo_id: photo_id,
+      comment: {
+        id: id,
+        content: content.truncate(100),
+        user: { id: user.id, display_name: user.display_name }
+      },
+      comment_count: photo.reload.comment_count
+    })
+  end
+
+  public
 
   # Check if this comment has been anonymized (user deleted)
   #
