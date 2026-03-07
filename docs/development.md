@@ -117,12 +117,16 @@ bundle exec rails server
 ### 7. Docker Compose使用 (代替方法)
 
 ```bash
-# Docker Compose起動
-docker-compose up -d
+# Docker Compose起動 (DB + InfluxDB + Grafana)
+docker compose up -d
 
 # データベースセットアップ
-docker-compose exec backend bundle exec rails db:setup
+docker compose exec backend bundle exec rails db:setup
 ```
+
+Docker Composeにより以下のサービスも起動されます:
+- **InfluxDB** (ポート8086) - k6負荷テスト結果の保存
+- **Grafana** (ポート3001) - パフォーマンスダッシュボード (admin/grafana_dev_password)
 
 ---
 
@@ -407,6 +411,17 @@ npx expo start --clear
 # iOSシミュレーターリセット
 xcrun simctl erase all
 ```
+
+---
+
+## 主要パッケージ (v1.2で追加)
+
+### バックエンド
+- **ActionCable** (Solid Cable) - WebSocketリアルタイム配信
+
+### モバイル
+- **@rails/actioncable** - ActionCable WebSocketクライアント
+- **@sentry/react-native** - エラートラッキング・パフォーマンス監視
 
 ---
 

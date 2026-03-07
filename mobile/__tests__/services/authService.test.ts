@@ -5,8 +5,6 @@
  * apiClient and tokenStorage are fully mocked.
  */
 
-import type { User } from '../../src/types/auth';
-
 // Mock apiClient
 jest.mock('../../src/services/apiClient', () => ({
   apiClient: {
@@ -32,14 +30,17 @@ jest.mock('../../src/services/tokenStorage', () => ({
 
 // AsyncStorage is already mocked in setup.ts, but we need to access the mock
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { apiClient } from '../../src/services/apiClient';
+import { authService } from '../../src/services/authService';
 import {
   storeTokens,
   clearTokens,
   getRefreshToken,
   hasValidTokens,
 } from '../../src/services/tokenStorage';
-import { authService } from '../../src/services/authService';
+
+import type { User } from '../../src/types/auth';
 
 const mockedApiClient = jest.mocked(apiClient);
 const mockedStoreTokens = jest.mocked(storeTokens);

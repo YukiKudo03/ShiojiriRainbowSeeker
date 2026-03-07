@@ -96,7 +96,24 @@ RUN bundle exec bootsnap precompile app/ lib/
 RUN rm -rf spec test tmp/cache tmp/pids tmp/sockets log/*.log
 
 # =============================================================================
-# Stage 3: Production image
+# Stage 3: Development image
+# =============================================================================
+# Includes all gems (debug, rspec, rubocop, etc.)
+# Source code is mounted via docker-compose volumes
+FROM build AS development
+
+ENV RAILS_ENV="development" \
+    BUNDLE_DEPLOYMENT="" \
+    BUNDLE_WITHOUT=""
+
+RUN bundle install --jobs 4 --retry 3
+
+ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+EXPOSE 3000
+CMD ["./bin/rails", "server", "-b", "0.0.0.0"]
+
+# =============================================================================
+# Stage 4: Production image
 # =============================================================================
 FROM base AS production
 

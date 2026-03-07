@@ -51,6 +51,19 @@ EOSQL
 
         echo "Additional databases created successfully!"
     fi
+
+    # Always create test databases for running specs in Docker
+    echo "Creating test databases..."
+    local test_databases=(
+        "shiojiri_rainbow_seeker_test"
+        "shiojiri_rainbow_seeker_test_cache"
+        "shiojiri_rainbow_seeker_test_queue"
+        "shiojiri_rainbow_seeker_test_cable"
+    )
+    for db in "${test_databases[@]}"; do
+        create_database "$db"
+    done
+    echo "Test databases created successfully!"
 }
 
 main

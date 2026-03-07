@@ -4,11 +4,15 @@
 # Local development environment with PostgreSQL/PostGIS
 #
 # Usage:
-#   docker compose up -d              # Start all services
+#   docker compose up -d              # Start db + api
 #   docker compose logs -f api        # View API logs
 #   docker compose exec api bin/rails console  # Rails console
 #   docker compose down               # Stop all services
 #   docker compose down -v            # Stop and remove volumes
+#
+# Profiles:
+#   docker compose --profile test run --rm test           # Run RSpec
+#   docker compose --profile monitoring up -d             # Start InfluxDB + Grafana
 # =============================================================================
 
 name: shiojiri-rainbow-seeker
@@ -49,7 +53,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: build  # Use build stage for development (includes dev tools)
+      target: development
     container_name: shiojiri-rainbow-api
     restart: unless-stopped
     depends_on:
@@ -66,15 +70,16 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-shiojiri}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shiojiri_dev_password}
 
-      # Override bundle settings for development
-      BUNDLE_DEPLOYMENT: ""
-      BUNDLE_WITHOUT: ""
-
       # JWT secret (development only - use secure value in production)
       DEVISE_JWT_SECRET_KEY: ${DEVISE_JWT_SECRET_KEY:-dev_jwt_secret_key_change_in_production}
 
       # Solid Queue in Puma (single-server development mode)
       SOLID_QUEUE_IN_PUMA: "true"
+
+      # External APIs
+      OPENWEATHERMAP_API_KEY: ${OPENWEATHERMAP_API_KEY:-}
+      LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
     volumes:
       # Mount source code for live reload
       - .:/rails:cached
@@ -86,7 +91,37 @@ services:
       - "${API_PORT:-3000}:3000"
     stdin_open: true
     tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     command: ["./bin/rails", "server", "-b", "0.0.0.0"]
+
+  # ===========================================================================
+  # Test Runner (profile: test)
+  # ===========================================================================
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: test
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-shiojiri}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shiojiri_dev_password}
+      DEVISE_JWT_SECRET_KEY: ${DEVISE_JWT_SECRET_KEY:-test_jwt_secret_key}
+    volumes:
+      - .:/rails:cached
+      - bundle_cache:/usr/local/bundle
+    profiles: [test]
+    command: ["bundle", "exec", "rspec"]
 
   # ===========================================================================
   # InfluxDB (for k6 test results and metrics)
@@ -111,6 +146,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    profiles: [monitoring]
 
   # ===========================================================================
   # Grafana (dashboards for k6 and API monitoring)
@@ -133,6 +169,7 @@ services:
       - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
     ports:
       - "${GRAFANA_PORT:-3001}:3000"
+    profiles: [monitoring]
 
   # ===========================================================================
   # Redis (Optional - for Action Cable or caching if not using Solid variants)

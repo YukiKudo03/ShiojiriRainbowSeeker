@@ -5,11 +5,11 @@
  * AsyncStorage is mocked in the setup file.
  */
 
-import type { PhotoUploadMetadata } from '../../src/types/photo';
-import type { QueuedUpload, UploadStatus } from '../../src/store/uploadQueueStore';
-
 // Import the store after mocks are in place (setup.ts handles AsyncStorage mock)
 import { useUploadQueueStore } from '../../src/store/uploadQueueStore';
+
+import type { QueuedUpload } from '../../src/store/uploadQueueStore';
+import type { PhotoUploadMetadata } from '../../src/types/photo';
 
 /**
  * Helper: create a mock PhotoUploadMetadata
@@ -349,7 +349,7 @@ describe('uploadQueueStore', () => {
     });
 
     it('should keep pending, uploading, and error items', () => {
-      const { id: id1 } = addItemToQueue('file:///pending.jpg');
+      addItemToQueue('file:///pending.jpg');
       const { id: id2 } = addItemToQueue('file:///uploading.jpg');
       const { id: id3 } = addItemToQueue('file:///error.jpg');
       const { id: id4 } = addItemToQueue('file:///success.jpg');

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_25_124252) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_07_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -168,9 +168,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_25_124252) do
     t.datetime "deletion_requested_at"
     t.datetime "deletion_scheduled_at"
     t.string "deletion_job_id"
+    t.string "line_user_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["deletion_scheduled_at"], name: "index_users_on_deletion_scheduled_at", where: "(deletion_scheduled_at IS NOT NULL)"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["line_user_id"], name: "index_users_on_line_user_id", unique: true, where: "(line_user_id IS NOT NULL)"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["violation_flagged"], name: "index_users_on_violation_flagged", where: "(violation_flagged = true)"
   end

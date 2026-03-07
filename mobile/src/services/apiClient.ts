@@ -13,6 +13,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 
+import { addBreadcrumb } from './sentryService';
 import {
   getAccessToken,
   getRefreshToken,
@@ -20,7 +21,6 @@ import {
   clearTokens,
   isAccessTokenExpired,
 } from './tokenStorage';
-import { addBreadcrumb } from './sentryService';
 
 import type { ApiError, RefreshTokenResponse } from '../types/auth';
 

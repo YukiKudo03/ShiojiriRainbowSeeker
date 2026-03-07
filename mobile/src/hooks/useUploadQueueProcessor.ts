@@ -10,12 +10,14 @@
 import { useEffect, useRef, useCallback } from 'react';
 
 import { useNetworkState } from './useNetworkState';
+import { uploadPhoto, prepareUploadRequest } from '../services/photoService';
 import {
   useUploadQueueStore,
   type QueuedUpload,
 } from '../store/uploadQueueStore';
-import { uploadPhoto, prepareUploadRequest } from '../services/photoService';
+
 import type { CapturedPhoto } from '../types/photo';
+
 
 /**
  * Exponential backoff configuration

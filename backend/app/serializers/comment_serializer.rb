@@ -19,7 +19,7 @@ class CommentSerializer < ApplicationSerializer
   one :user, serializer: UserSerializer::Summary
 
   # Whether current user owns this comment
-  attribute :is_owner do |comment, params|
+  attribute :is_owner do |comment|
     current_user = params[:current_user]
     next false unless current_user
 

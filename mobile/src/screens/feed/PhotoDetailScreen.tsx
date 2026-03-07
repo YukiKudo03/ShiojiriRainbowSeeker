@@ -117,7 +117,7 @@ export const PhotoDetailScreen: React.FC<PhotoDetailScreenProps> = ({
           id: data.id,
           title: data.title,
           description: data.description,
-          capturedAt: data.capturedAt ?? data.captured_at,
+          capturedAt: data.capturedAt ?? data.captured_at ?? '',
           location: data.location ? {
             latitude: data.location.latitude,
             longitude: data.location.longitude,
@@ -127,10 +127,10 @@ export const PhotoDetailScreen: React.FC<PhotoDetailScreenProps> = ({
             thumbnail: data.image_url ?? data.imageUrl ?? '',
             medium: data.image_url ?? data.imageUrl ?? '',
           },
-          createdAt: data.createdAt ?? data.created_at,
+          createdAt: data.createdAt ?? data.created_at ?? '',
           user: {
             id: data.user.id,
-            displayName: data.user.displayName ?? data.user.display_name,
+            displayName: data.user.displayName ?? data.user.display_name ?? '',
           },
           likeCount: data.likeCount ?? data.like_count ?? 0,
           commentCount: data.commentCount ?? data.comment_count ?? 0,

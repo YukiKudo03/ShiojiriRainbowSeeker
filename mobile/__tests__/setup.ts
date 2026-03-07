@@ -5,6 +5,9 @@
  * in the Node.js test environment.
  */
 
+// Define React Native globals
+(global as Record<string, unknown>).__DEV__ = true;
+
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => {
   const store: Record<string, string> = {};
@@ -73,12 +76,38 @@ jest.mock('@react-native-community/netinfo', () => ({
   ),
 }));
 
+// Mock @sentry/react-native
+jest.mock('@sentry/react-native', () => ({
+  init: jest.fn(),
+  setUser: jest.fn(),
+  captureException: jest.fn(),
+  addBreadcrumb: jest.fn(),
+  withScope: jest.fn((callback: (scope: { setExtras: jest.Mock }) => void) => {
+    callback({ setExtras: jest.fn() });
+  }),
+  wrap: jest.fn((component: unknown) => component),
+  Scope: jest.fn(),
+}));
+
+// Mock @rails/actioncable
+jest.mock('@rails/actioncable', () => ({
+  createConsumer: jest.fn(() => ({
+    subscriptions: {
+      create: jest.fn(() => ({
+        unsubscribe: jest.fn(),
+      })),
+    },
+    disconnect: jest.fn(),
+  })),
+}));
+
 // Suppress console.warn in tests to reduce noise
 const originalWarn = console.warn;
-beforeAll(() => {
-  console.warn = jest.fn();
-});
 
-afterAll(() => {
-  console.warn = originalWarn;
-});
+// Note: using global assignment instead of beforeAll since this runs in setupFiles
+console.warn = (...args: unknown[]) => {
+  // Allow specific warnings through if needed; suppress the rest
+  if (typeof args[0] === 'string' && args[0].includes('CRITICAL')) {
+    originalWarn(...args);
+  }
+};

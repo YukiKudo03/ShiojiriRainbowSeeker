@@ -61,7 +61,7 @@ export function captureException(
   context?: Record<string, unknown>
 ): void {
   if (context) {
-    Sentry.withScope((scope) => {
+    Sentry.withScope((scope: Sentry.Scope) => {
       scope.setExtras(context);
       Sentry.captureException(error);
     });

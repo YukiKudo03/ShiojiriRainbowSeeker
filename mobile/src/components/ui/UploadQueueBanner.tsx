@@ -8,6 +8,7 @@
  */
 
 import React from 'react';
+
 import {
   View,
   Text,
@@ -16,7 +17,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import { useUploadQueueProcessor, useNetworkState } from '../../hooks';
+import { useNetworkState, useUploadQueueProcessor } from '../../hooks';
 
 /**
  * Props for UploadQueueBanner

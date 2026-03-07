@@ -69,6 +69,12 @@ test:
   primary: &primary_test
     <<: *default
     database: shiojiri_rainbow_seeker_test
+    <% if ENV["DATABASE_HOST"] %>
+    host: <%= ENV["DATABASE_HOST"] %>
+    port: <%= ENV.fetch("DATABASE_PORT") { 5432 } %>
+    username: <%= ENV.fetch("POSTGRES_USER") { "shiojiri" } %>
+    password: <%= ENV["POSTGRES_PASSWORD"] %>
+    <% end %>
   # Solid Cache database for test
   cache:
     <<: *primary_test

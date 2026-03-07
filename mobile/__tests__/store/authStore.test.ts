@@ -5,8 +5,6 @@
  * The authService is fully mocked.
  */
 
-import type { User } from '../../src/types/auth';
-
 // Mock the authService module before importing the store
 jest.mock('../../src/services/authService', () => ({
   authService: {
@@ -23,8 +21,10 @@ jest.mock('../../src/services/authService', () => ({
   }),
 }));
 
-import { useAuthStore } from '../../src/store/authStore';
 import { authService } from '../../src/services/authService';
+import { useAuthStore } from '../../src/store/authStore';
+
+import type { User } from '../../src/types/auth';
 
 const mockedAuthService = jest.mocked(authService);
 

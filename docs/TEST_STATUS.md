@@ -2,7 +2,7 @@
 
 **最終更新**: 2026-03-07
 **Spec**: shiojiri-rainbow-seeker
-**全体ステータス**: v1.1 課題修正・機能拡張実装中
+**全体ステータス**: v1.2 リアルタイム機能・監視基盤実装完了
 
 ---
 
@@ -10,11 +10,12 @@
 
 | テスト | ステータス | 詳細 |
 |--------|------------|------|
-| Mobile TypeScript | ✅ 成功 | `npm run type-check` パス |
+| Mobile TypeScript | ✅ 成功 | `npm run type-check` パス (@ts-expect-error 0件, any型 0件) |
 | Mobile Unit Tests | ✅ 追加 | Jest によるサービス・ストア・フックのテスト |
 | Backend RSpec | ⚠️ 未実行 | PostGISインストールが必要 (56 specファイル) |
-| E2E (Detox) | ⏸️ 設定済み | 実行には別途セットアップが必要 |
-| 負荷テスト (k6) | ✅ 設定済み | smoke, load, spike, stress シナリオ |
+| E2E (Detox) | ✅ CI有効化 | GitHub Actions (macos-14) でmainブランチ時自動実行 |
+| 負荷テスト (k6) | ✅ CI統合 | smoke, load, spike, stress + CI/CDパイプライン統合 |
+| OWASP ZAP | ✅ CI有効化 | セキュリティスキャン (スケジュール + 手動トリガー) |
 
 ---
 
@@ -142,3 +143,28 @@ k6 run k6/scenarios/smoke.js
 - [x] F-2: 画像モデレーションサービス
 - [x] F-3: グローバルAPIレート制限（M-3に含む）
 - [x] F-4: モバイルユニットテスト（C-3に含む）
+
+---
+
+## v1.2 で対応した課題
+
+### コード品質
+- [x] L-2: @ts-expect-error 2箇所の解消 (FormData型拡張)
+- [x] L-3: any型 12箇所の解消 (Rawインターフェース定義)
+
+### CI/CDパイプライン
+- [x] F-6: k6負荷テストのCI統合 (load-test.yml, post-deploy smoke)
+- [x] F-10: OWASP ZAPスキャン有効化 (security.yml)
+- [x] F-14: E2Eテスト (Detox) のCI有効化 (ci-mobile.yml)
+
+### 監視・エラー追跡
+- [x] F-7: InfluxDB/Grafanaパフォーマンスモニタリング
+- [x] F-13: Sentryモバイルエラー追跡 (@sentry/react-native)
+
+### リアルタイム機能
+- [x] F-5: ActionCable WebSocketリアルタイム配信 (PhotoFeed, Notifications)
+
+### ドキュメント
+- [x] F-8: 災害復旧 (DR) 手順書
+- [x] F-9: マネージドDB移行ガイド
+- [x] F-12: キャパシティプランニングガイド

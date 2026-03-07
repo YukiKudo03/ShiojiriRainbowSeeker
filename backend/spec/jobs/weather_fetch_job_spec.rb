@@ -72,6 +72,8 @@ RSpec.describe WeatherFetchJob do
       allow(wc).to receive(:assign_attributes)
       allow(wc).to receive(:save!).and_return(true)
       allow(wc).to receive(:update).and_return(true)
+      allow(wc).to receive(:precipitation).and_return(0.5)
+      allow(wc).to receive(:weather_code).and_return("500")
     end
   end
 

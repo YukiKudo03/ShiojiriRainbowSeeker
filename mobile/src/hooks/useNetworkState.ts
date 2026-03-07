@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
+
 import NetInfo, { NetInfoState, NetInfoStateType } from '@react-native-community/netinfo';
 
 /**

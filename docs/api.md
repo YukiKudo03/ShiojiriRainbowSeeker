@@ -372,6 +372,51 @@ Accept-Language: en
 
 ---
 
+## WebSocket (ActionCable)
+
+リアルタイム更新にはActionCable (WebSocket)を使用します。
+
+### 接続
+
+```
+wss://api.shiojiri-rainbow.app/cable?token=<jwt_access_token>
+```
+
+JWTトークンをクエリパラメータ`token`で渡して認証します。
+
+### チャネル
+
+| チャネル | ストリーム | 説明 |
+|---------|----------|------|
+| PhotoFeedChannel | `photo_feed` | 新規投稿・いいね・コメントのリアルタイム配信 |
+| NotificationsChannel | ユーザー固有 | ログインユーザーへの個別通知配信 |
+
+### PhotoFeedChannel
+
+全ユーザー共通のフィードストリーム。新規写真投稿、いいね、コメントがブロードキャストされます。
+
+```json
+// 新規投稿
+{"type": "new_photo", "photo": {"id": "uuid", "user": {...}, "image_url": "..."}}
+
+// いいね
+{"type": "new_like", "photo_id": "uuid", "user": {"id": "uuid", "display_name": "..."}, "likes_count": 43}
+
+// コメント
+{"type": "new_comment", "photo_id": "uuid", "comment": {"id": "uuid", "body": "...", "user": {...}}}
+```
+
+### NotificationsChannel
+
+ログインユーザー固有の通知ストリーム。いいね・コメント通知が配信されます（自分自身のアクションは除外）。
+
+```json
+{"type": "like_notification", "photo_id": "uuid", "user": {"display_name": "..."}}
+{"type": "comment_notification", "photo_id": "uuid", "comment": {"body": "..."}, "user": {"display_name": "..."}}
+```
+
+---
+
 ## Webhook (将来実装)
 
 虹出現アラートやユーザーアクションに対するWebhook通知は将来のバージョンで実装予定です。
@@ -383,3 +428,5 @@ Accept-Language: en
 | バージョン | 日付 | 変更内容 |
 |-----------|------|---------|
 | 1.0.0 | 2024-01-15 | 初版リリース |
+| 1.1.0 | 2026-03-07 | LINE通知連携、レート制限追加 |
+| 1.2.0 | 2026-03-07 | WebSocket (ActionCable) リアルタイム配信追加、Sentryエラー監視連携 |

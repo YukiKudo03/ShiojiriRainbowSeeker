@@ -14,10 +14,12 @@
 [ユーザー] → [CloudFlare CDN] → [Kamal Proxy (Traefik)]
                                        ↓
                               [Rails API (Puma)]
-                                   ↓       ↓
-                            [PostgreSQL] [S3]
-                                   ↓
-                            [Solid Queue Worker]
+                                ↓    ↓     ↓     ↓
+                         [PostgreSQL] [S3] [ActionCable/WS] [Sentry]
+                                ↓
+                         [Solid Queue Worker]
+                                ↓
+                    [InfluxDB] → [Grafana Dashboard]
 ```
 
 ### コンポーネント
@@ -26,9 +28,13 @@
 |--------------|------|-------|
 | Traefik | リバースプロキシ、SSL終端 | 80, 443 |
 | Puma | Railsアプリケーションサーバー | 3000 |
+| ActionCable | WebSocketリアルタイム配信 | /cable |
 | PostgreSQL + PostGIS | データベース | 5432 |
 | Solid Queue | バックグラウンドジョブ | - |
 | S3 | 画像ストレージ | - |
+| InfluxDB | 時系列データストア (k6メトリクス) | 8086 |
+| Grafana | パフォーマンスダッシュボード | 3001 |
+| Sentry | エラー追跡 (バックエンド + モバイル) | - |
 
 ---
 
@@ -52,10 +58,9 @@
 
 ### 週次の確認事項
 
-1. **パフォーマンスメトリクス確認**
-   - 平均応答時間
-   - エラー率
-   - リクエスト数
+1. **パフォーマンスメトリクス確認** (Grafanaダッシュボード: http://localhost:3001)
+   - k6 Performance Dashboard: レスポンスタイム(p95), RPS, エラー率
+   - API Monitoring Dashboard: 平均応答時間, スループット, データ転送量
 
 2. **ディスク使用量確認**
    ```bash
@@ -331,3 +336,7 @@ bundle exec kamal app exec "bin/rails monitoring:status"
 - [API仕様書](./api.md)
 - [デプロイ手順書](./deployment.md)
 - [開発環境セットアップ](./development.md)
+- [モニタリングセットアップ](./monitoring-setup.md)
+- [災害復旧手順書](./disaster-recovery.md)
+- [キャパシティプランニング](./capacity-planning.md)
+- [マネージドDB移行ガイド](./managed-db-migration.md)

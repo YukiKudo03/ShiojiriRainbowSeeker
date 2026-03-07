@@ -16,6 +16,8 @@
 | 地図 | react-native-maps | 地図表示 |
 | カメラ | expo-camera | 写真撮影 |
 | 通知 | expo-notifications | プッシュ通知 |
+| WebSocket | @rails/actioncable | リアルタイム通信 |
+| エラー監視 | @sentry/react-native | エラー追跡・パフォーマンス |
 
 ---
 
@@ -63,7 +65,9 @@ mobile/
 │   │   ├── api.ts            # Axiosインスタンス
 │   │   ├── authService.ts    # 認証API
 │   │   ├── photoService.ts   # 写真API
-│   │   └── notificationService.ts
+│   │   ├── notificationService.ts
+│   │   ├── cableService.ts   # ActionCable WebSocket
+│   │   └── sentryService.ts  # Sentry初期化・ユーザー追跡
 │   │
 │   ├── hooks/                # カスタムフック
 │   │   ├── useAuth.ts        # 認証フック
@@ -418,20 +422,15 @@ export function AccessibleTouchable({
 
 ## エラーハンドリング
 
+アプリ全体を`Sentry.wrap()`でラップし、未捕捉エラーとパフォーマンスを自動追跡します。APIクライアントでは5xxエラー発生時にSentryブレッドクラムを記録します。
+
 ```typescript
 // App.tsx
-import { ErrorBoundary } from 'react-error-boundary';
+import { wrapWithSentry, initSentry } from '@/services/sentryService';
 
-function ErrorFallback({ error, resetErrorBoundary }) {
-  return (
-    <View style={styles.container}>
-      <Text>エラーが発生しました</Text>
-      <Button onPress={resetErrorBoundary}>再試行</Button>
-    </View>
-  );
-}
+initSentry();
 
-export default function App() {
+function App() {
   return (
     <ErrorBoundary
       FallbackComponent={ErrorFallback}
@@ -441,6 +440,38 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+export default wrapWithSentry(App);
+```
+
+### Sentryサービス
+
+- `initSentry()` - DSN・サンプルレート設定
+- `setUserContext()` / `clearUserContext()` - ログイン/ログアウト時のユーザーコンテキスト管理
+- `captureException()` - コンテキスト付きエラー送信
+- `addBreadcrumb()` - API呼び出し等のブレッドクラム記録
+
+---
+
+## リアルタイム通信
+
+ActionCable (WebSocket) を使用して、新規投稿・いいね・コメントをリアルタイムに配信します。
+
+```typescript
+// services/cableService.ts
+import { createConsumer } from '@rails/actioncable';
+
+// ログイン後にJWTトークン付きで接続
+connectCable(token);
+
+// フィード画面でリアルタイム更新を購読
+subscribeToPhotoFeed(onNewPhoto, onNewLike, onNewComment);
+
+// 通知を購読
+subscribeToNotifications(onNotification);
+
+// ログアウト時に切断
+disconnectCable();
 ```
 
 ---

@@ -147,6 +147,8 @@ GitHub Actionsにより以下のタイミングで自動デプロイが実行さ
 - `main`ブランチへのプッシュ → 本番環境
 - `develop`ブランチへのプッシュ → ステージング環境
 
+ステージングデプロイ後、k6 smokeテストが自動実行され基本的な動作確認を行います。
+
 ### 手動デプロイ (GitHub Actions)
 
 1. GitHubリポジトリの「Actions」タブを開く
@@ -300,8 +302,14 @@ bundle exec kamal prune all
 | AWS_BUCKET | S3バケット名 | ○ |
 | OPENWEATHER_API_KEY | OpenWeatherMap APIキー | ○ |
 | FCM_SERVER_KEY | Firebase Cloud Messagingキー | ○ |
-| SENTRY_DSN | Sentry接続文字列 | - |
+| SENTRY_DSN | Sentry接続文字列 (バックエンド) | - |
 | SENTRY_ENVIRONMENT | Sentry環境名 | - |
+| EXPO_PUBLIC_SENTRY_DSN | Sentry接続文字列 (モバイル) | - |
+| LINE_CHANNEL_ACCESS_TOKEN | LINE Messaging APIアクセストークン | - |
+| DEVISE_JWT_SECRET_KEY | JWT署名キー | ○ |
+| INFLUXDB_PASSWORD | InfluxDB管理パスワード | - |
+| INFLUXDB_TOKEN | InfluxDB APIトークン | - |
+| GRAFANA_PASSWORD | Grafana管理パスワード | - |
 | WEB_CONCURRENCY | Pumaワーカー数 | - |
 | RAILS_MAX_THREADS | Pumaスレッド数 | - |
 | SOLID_QUEUE_IN_PUMA | Puma内でSolid Queue実行 | - |
@@ -317,6 +325,21 @@ bundle exec kamal prune all
    - 80 (HTTP → HTTPS redirect)
    - 443 (HTTPS)
    - 22 (SSH、可能なら制限)
+
+---
+
+## モニタリングサービスのデプロイ
+
+InfluxDB + Grafanaをデプロイして負荷テスト結果とAPIメトリクスを可視化します。
+
+```bash
+# 本番環境
+docker compose -f docker-compose.prod.yml up -d influxdb grafana
+```
+
+必要な環境変数: `INFLUXDB_PASSWORD`, `INFLUXDB_TOKEN`, `GRAFANA_PASSWORD`
+
+詳細は [モニタリングセットアップガイド](./monitoring-setup.md) を参照してください。
 
 ---
 

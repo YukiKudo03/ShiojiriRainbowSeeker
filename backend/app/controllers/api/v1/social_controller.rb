@@ -399,7 +399,7 @@ module Api
       end
 
       def serialize_comment(comment)
-        CommentSerializer.new(comment, params: { current_user: current_user }).serialize
+        CommentSerializer.new(comment, params: { current_user: current_user }).to_h
       end
 
       # Send like notification asynchronously to avoid blocking the response
