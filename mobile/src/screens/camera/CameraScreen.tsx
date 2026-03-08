@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -38,6 +39,8 @@ import type { LocationSubscription } from 'expo-location';
 const MAX_FILE_SIZE_MB = 10;
 
 export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
+  const { t } = useTranslation();
+
   // Camera state
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
@@ -60,7 +63,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
       try {
         const hasPermission = await requestLocationPermission();
         if (!hasPermission) {
-          setLocationError('Location permission denied. You can set location manually.');
+          setLocationError(t('camera.locationDenied'));
           setIsLocationLoading(false);
           return;
         }
@@ -80,7 +83,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
         }
       } catch (error) {
         console.error('Location error:', error);
-        setLocationError('Unable to get location');
+        setLocationError(t('camera.locationError'));
       } finally {
         setIsLocationLoading(false);
       }
@@ -139,7 +142,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
       });
 
       if (!photo) {
-        Alert.alert('Error', 'Failed to capture photo');
+        Alert.alert(t('common.error'), t('camera.captureError'));
         return;
       }
 
@@ -156,7 +159,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
       navigateToUpload(capturedPhoto);
     } catch (error) {
       console.error('Capture error:', error);
-      Alert.alert('Error', 'Failed to capture photo. Please try again.');
+      Alert.alert(t('common.error'), t('camera.captureRetry'));
     } finally {
       setIsCapturing(false);
     }
@@ -186,8 +189,8 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
       const isValidSize = await checkFileSize(photo.uri);
       if (!isValidSize) {
         Alert.alert(
-          'File Too Large',
-          `The selected image exceeds ${MAX_FILE_SIZE_MB}MB. Please select a smaller image.`
+          t('camera.fileTooLarge'),
+          t('camera.fileTooLargeMessage', { size: MAX_FILE_SIZE_MB })
         );
         setIsLoadingGallery(false);
         return;
@@ -196,11 +199,11 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
       // If no GPS in EXIF and we have current location, offer to use it
       if (!photo.location && location) {
         Alert.alert(
-          'No Location Data',
-          'This photo has no GPS data. Would you like to use your current location?',
+          t('camera.noLocationData'),
+          t('camera.noLocationDataMessage'),
           [
             {
-              text: 'Use Current Location',
+              text: t('camera.useCurrentLocation'),
               onPress: () => {
                 navigateToUpload({
                   ...photo,
@@ -209,7 +212,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
               },
             },
             {
-              text: 'Set Location Manually',
+              text: t('camera.setLocationManually'),
               onPress: () => navigateToUpload(photo),
             },
           ]
@@ -221,11 +224,11 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
       console.error('Gallery selection error:', error);
       if (error instanceof Error && error.message.includes('permission')) {
         Alert.alert(
-          'Permission Required',
-          'Please grant access to your photo library to select images.'
+          t('camera.permissionRequired'),
+          t('camera.permissionRequiredMessage')
         );
       } else {
-        Alert.alert('Error', 'Failed to select photo. Please try again.');
+        Alert.alert(t('common.error'), t('camera.galleryError'));
       }
     } finally {
       setIsLoadingGallery(false);
@@ -238,26 +241,26 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
   const renderPermissionRequest = () => (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.permissionContainer}>
-        <Text style={styles.permissionTitle}>Camera Permission Required</Text>
+        <Text style={styles.permissionTitle}>{t('camera.permissionTitle')}</Text>
         <Text style={styles.permissionText}>
-          To capture rainbow photos, please grant camera access.
+          {t('camera.permissionText')}
         </Text>
         <TouchableOpacity
           style={styles.permissionButton}
           onPress={requestPermission}
           accessibilityRole="button"
-          accessibilityLabel="Grant camera permission"
+          accessibilityLabel={t('camera.grantPermission')}
         >
-          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+          <Text style={styles.permissionButtonText}>{t('camera.grantPermission')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.permissionButton, styles.galleryButton]}
           onPress={handleSelectFromGallery}
           accessibilityRole="button"
-          accessibilityLabel="Select from gallery"
+          accessibilityLabel={t('camera.selectFromGallery')}
         >
           <Text style={styles.permissionButtonText}>
-            Select from Gallery Instead
+            {t('camera.selectFromGallery')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -271,7 +274,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#fff" />
-        <Text style={styles.loadingText}>Initializing camera...</Text>
+        <Text style={styles.loadingText}>{t('camera.initializing')}</Text>
       </View>
     </SafeAreaView>
   );
@@ -290,12 +293,12 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
       {/* Header with location indicator */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>Capture Rainbow</Text>
+          <Text style={styles.title}>{t('camera.title')}</Text>
           <View style={styles.locationIndicator}>
             {isLocationLoading ? (
               <>
                 <ActivityIndicator size="small" color="#fff" />
-                <Text style={styles.locationText}>Getting location...</Text>
+                <Text style={styles.locationText}>{t('camera.gettingLocation')}</Text>
               </>
             ) : locationError ? (
               <>
@@ -312,7 +315,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
             ) : (
               <>
                 <View style={[styles.locationDot, styles.locationDotInactive]} />
-                <Text style={styles.locationText}>Location unavailable</Text>
+                <Text style={styles.locationText}>{t('camera.locationUnavailable')}</Text>
               </>
             )}
           </View>
@@ -346,14 +349,14 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
           onPress={handleSelectFromGallery}
           disabled={isLoadingGallery || isCapturing}
           accessibilityRole="button"
-          accessibilityLabel="Select photo from gallery"
-          accessibilityHint="Opens your photo gallery to select an image"
+          accessibilityLabel={t('camera.gallery')}
+          accessibilityHint={t('camera.galleryHint')}
           testID="gallery-button"
         >
           {isLoadingGallery ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text style={styles.controlButtonText}>Gallery</Text>
+            <Text style={styles.controlButtonText}>{t('camera.gallery')}</Text>
           )}
         </TouchableOpacity>
 
@@ -366,8 +369,8 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
           onPress={handleCapture}
           disabled={isCapturing || isLoadingGallery}
           accessibilityRole="button"
-          accessibilityLabel="Capture photo"
-          accessibilityHint="Takes a photo of the rainbow"
+          accessibilityLabel={t('camera.capturePhoto')}
+          accessibilityHint={t('camera.captureHint')}
           testID="capture-button"
         >
           <View
@@ -384,18 +387,18 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ navigation }) => {
           onPress={toggleCameraFacing}
           disabled={isCapturing || isLoadingGallery}
           accessibilityRole="button"
-          accessibilityLabel="Flip camera"
-          accessibilityHint="Switches between front and back camera"
+          accessibilityLabel={t('camera.flipCamera')}
+          accessibilityHint={t('camera.flipHint')}
           testID="flip-camera-button"
         >
-          <Text style={styles.controlButtonText}>Flip</Text>
+          <Text style={styles.controlButtonText}>{t('camera.flip')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Tips */}
       <View style={styles.tipsContainer}>
         <Text style={styles.tipsText}>
-          Tip: Point at the rainbow and tap the capture button
+          {t('camera.tip')}
         </Text>
       </View>
     </SafeAreaView>

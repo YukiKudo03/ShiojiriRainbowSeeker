@@ -97,8 +97,40 @@
       "description": "Receive notifications when new rainbows are discovered or when someone likes or comments on your posts."
     },
     "skip": "Skip",
+    "skipAccessibility": "Skip onboarding",
     "next": "Next",
     "getStarted": "Get Started"
+  },
+  "camera": {
+    "title": "Capture Rainbow",
+    "permissionTitle": "Camera Permission Required",
+    "permissionText": "To capture rainbow photos, please grant camera access.",
+    "grantPermission": "Grant Permission",
+    "selectFromGallery": "Select from Gallery Instead",
+    "initializing": "Initializing camera...",
+    "gettingLocation": "Getting location...",
+    "locationUnavailable": "Location unavailable",
+    "locationDenied": "Location permission denied. You can set location manually.",
+    "locationError": "Unable to get location",
+    "captureError": "Failed to capture photo",
+    "captureRetry": "Failed to capture photo. Please try again.",
+    "fileTooLarge": "File Too Large",
+    "fileTooLargeMessage": "The selected image exceeds {{size}}MB. Please select a smaller image.",
+    "noLocationData": "No Location Data",
+    "noLocationDataMessage": "This photo has no GPS data. Would you like to use your current location?",
+    "useCurrentLocation": "Use Current Location",
+    "setLocationManually": "Set Location Manually",
+    "permissionRequired": "Permission Required",
+    "permissionRequiredMessage": "Please grant access to your photo library to select images.",
+    "galleryError": "Failed to select photo. Please try again.",
+    "gallery": "Gallery",
+    "flip": "Flip",
+    "capturePhoto": "Capture photo",
+    "captureHint": "Takes a photo of the rainbow",
+    "galleryHint": "Opens your photo gallery to select an image",
+    "flipCamera": "Flip camera",
+    "flipHint": "Switches between front and back camera",
+    "tip": "Tip: Point at the rainbow and tap the capture button"
   },
   "feed": {
     "title": "Feed",
@@ -106,7 +138,10 @@
     "noPhotos": "No photos yet",
     "beFirstToShare": "Be the first to share a rainbow!",
     "loading": "Loading photos...",
-    "refreshing": "Refreshing..."
+    "refreshing": "Refreshing...",
+    "refreshed": "Feed refreshed",
+    "filtersApplied": "Filters applied",
+    "filtersCleared": "All filters cleared"
   },
   "photo": {
     "rainbow": "Rainbow",
@@ -128,7 +163,15 @@
     "takePhoto": "Take Photo",
     "chooseFromLibrary": "Choose from Library",
     "deletePhoto": "Delete Photo",
-    "deletePhotoConfirm": "Are you sure you want to delete this photo?"
+    "deletePhotoConfirm": "Are you sure you want to delete this photo?",
+    "rainbowPhoto": "Rainbow photo",
+    "postedBy": "Posted by: {{name}}",
+    "locationLabel": "Location: {{name}}",
+    "dateLabel": "Date: {{date}}",
+    "likesCount": "{{count}} likes",
+    "commentsCount": "{{count}} comments",
+    "doubleTapForDetail": "Double tap for details",
+    "navigateToDetail": "Navigate to photo detail screen"
   },
   "map": {
     "title": "Map",
@@ -203,7 +246,12 @@
     "deleteComment": "Delete Comment",
     "reportReason": "Reason for report",
     "reportSubmitted": "Report submitted",
-    "deletedUser": "Deleted User"
+    "deletedUser": "Deleted User",
+    "commentLoadError": "Failed to load comments",
+    "commentPostError": "Failed to post comment",
+    "commentDeleteError": "Failed to delete comment",
+    "commentDeleteConfirm": "Delete this comment?",
+    "commentCharLimit": "Comment must be {{max}} characters or less"
   },
   "settings": {
     "title": "Settings",

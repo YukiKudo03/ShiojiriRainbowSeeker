@@ -32,6 +32,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useTranslation } from 'react-i18next';
+
 import { Button } from '../../components/ui';
 import { useOnboardingStore } from '../../store/onboardingStore';
 
@@ -44,59 +46,54 @@ interface OnboardingSlide {
   id: string;
   icon: keyof typeof Ionicons.glyphMap;
   iconColor: string;
-  title: string;
-  subtitle: string;
-  description: string;
+  titleKey: string;
+  subtitleKey: string;
+  descriptionKey: string;
 }
 
 /**
- * Onboarding slides data
+ * Onboarding slides configuration (text resolved via i18n)
  */
 const SLIDES: OnboardingSlide[] = [
   {
     id: 'welcome',
     icon: 'color-palette',
     iconColor: '#4A90A4',
-    title: 'Shiojiri Rainbow Seeker へようこそ',
-    subtitle: 'Welcome to Rainbow Seeker',
-    description:
-      '塩尻市で見つけた美しい虹を撮影し、共有しましょう。虹の発見を通じて、地域コミュニティとつながりましょう。',
+    titleKey: 'onboarding.welcome.title',
+    subtitleKey: 'onboarding.welcome.subtitle',
+    descriptionKey: 'onboarding.welcome.description',
   },
   {
     id: 'camera',
     icon: 'camera',
     iconColor: '#27AE60',
-    title: '虹を撮影',
-    subtitle: 'Capture Rainbows',
-    description:
-      '虹を見つけたら、アプリ内のカメラで撮影しましょう。位置情報と一緒に記録され、あなたの発見が共有されます。',
+    titleKey: 'onboarding.camera.title',
+    subtitleKey: 'onboarding.camera.subtitle',
+    descriptionKey: 'onboarding.camera.description',
   },
   {
     id: 'gallery',
     icon: 'images',
     iconColor: '#9B59B6',
-    title: 'ギャラリーで閲覧',
-    subtitle: 'Browse Gallery',
-    description:
-      '他のユーザーが撮影した虹の写真をギャラリーで閲覧できます。いいねやコメントで交流しましょう。',
+    titleKey: 'onboarding.gallery.title',
+    subtitleKey: 'onboarding.gallery.subtitle',
+    descriptionKey: 'onboarding.gallery.description',
   },
   {
     id: 'map',
     icon: 'map',
     iconColor: '#E67E22',
-    title: 'マップで探索',
-    subtitle: 'Explore on Map',
-    description:
-      '塩尻市のマップ上で虹の発見場所を確認できます。どこで虹が見られるか、探索してみましょう。',
+    titleKey: 'onboarding.map.title',
+    subtitleKey: 'onboarding.map.subtitle',
+    descriptionKey: 'onboarding.map.description',
   },
   {
     id: 'notifications',
     icon: 'notifications',
     iconColor: '#3498DB',
-    title: '通知を受け取る',
-    subtitle: 'Get Notifications',
-    description:
-      '新しい虹の発見や、あなたの投稿へのいいね・コメントがあった時に通知でお知らせします。',
+    titleKey: 'onboarding.notifications.title',
+    subtitleKey: 'onboarding.notifications.subtitle',
+    descriptionKey: 'onboarding.notifications.description',
   },
 ];
 
@@ -104,6 +101,7 @@ const SLIDES: OnboardingSlide[] = [
  * OnboardingScreen component
  */
 export const OnboardingScreen: React.FC = () => {
+  const { t } = useTranslation();
   const flatListRef = useRef<FlatList<OnboardingSlide>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -167,14 +165,14 @@ export const OnboardingScreen: React.FC = () => {
 
           {/* Text content */}
           <View style={styles.textContainer}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.subtitle}>{item.subtitle}</Text>
-            <Text style={styles.description}>{item.description}</Text>
+            <Text style={styles.title}>{t(item.titleKey)}</Text>
+            <Text style={styles.subtitle}>{t(item.subtitleKey)}</Text>
+            <Text style={styles.description}>{t(item.descriptionKey)}</Text>
           </View>
         </View>
       </View>
     ),
-    []
+    [t]
   );
 
   /**
@@ -204,10 +202,10 @@ export const OnboardingScreen: React.FC = () => {
           style={styles.skipButton}
           onPress={handleSkip}
           accessibilityRole="button"
-          accessibilityLabel="オンボーディングをスキップ"
+          accessibilityLabel={t('onboarding.skipAccessibility')}
           testID="onboarding-skip-button"
         >
-          <Text style={styles.skipText}>スキップ</Text>
+          <Text style={styles.skipText}>{t('onboarding.skip')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -236,7 +234,7 @@ export const OnboardingScreen: React.FC = () => {
         <View style={styles.buttonContainer}>
           {isLastSlide ? (
             <Button
-              title="はじめる"
+              title={t('onboarding.getStarted')}
               onPress={handleGetStarted}
               fullWidth
               size="large"
@@ -246,7 +244,7 @@ export const OnboardingScreen: React.FC = () => {
             />
           ) : (
             <Button
-              title="次へ"
+              title={t('onboarding.next')}
               onPress={handleNext}
               fullWidth
               size="large"

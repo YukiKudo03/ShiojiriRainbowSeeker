@@ -37,6 +37,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
+import { useTranslation } from 'react-i18next';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -93,6 +94,8 @@ const hasActiveFilters = (filters: FilterState): boolean => {
 };
 
 export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
+  const { t } = useTranslation();
+
   // Search state
   const [searchText, setSearchText] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -207,7 +210,7 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['photos', queryFilters] });
     await refetch();
-    AccessibilityInfo.announceForAccessibility('フィードを更新しました');
+    AccessibilityInfo.announceForAccessibility(t('feed.refreshed'));
   }, [queryClient, queryFilters, refetch]);
 
   // Handle retry on error
@@ -232,7 +235,7 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
     setIsFilterModalVisible(false);
     setShowStartDatePicker(false);
     setShowEndDatePicker(false);
-    AccessibilityInfo.announceForAccessibility('フィルタを適用しました');
+    AccessibilityInfo.announceForAccessibility(t('feed.filtersApplied'));
   }, [tempFilters]);
 
   const handleClearFilters = useCallback(() => {
@@ -243,7 +246,7 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
     setFilters({});
     setSearchText('');
     setDebouncedSearch('');
-    AccessibilityInfo.announceForAccessibility('すべてのフィルタをクリアしました');
+    AccessibilityInfo.announceForAccessibility(t('feed.filtersCleared'));
   }, []);
 
   // Location filter toggle

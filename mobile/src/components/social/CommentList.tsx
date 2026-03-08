@@ -29,6 +29,8 @@ import {
   Platform,
 } from 'react-native';
 
+import { useTranslation } from 'react-i18next';
+
 import { socialService } from '../../services/socialService';
 import { MAX_COMMENT_LENGTH } from '../../types/social';
 import { MIN_TOUCH_TARGET_SIZE } from '../../utils/accessibility';
@@ -46,6 +48,7 @@ export const CommentList: React.FC<CommentListProps> = ({
   onCommentCountChange,
   onReportPress,
 }) => {
+  const { t } = useTranslation();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -81,7 +84,7 @@ export const CommentList: React.FC<CommentListProps> = ({
         setTotalPages(response.pagination.totalPages);
         onCommentCountChange?.(response.pagination.totalCount);
       } catch (err) {
-        setError('コメントの読み込みに失敗しました');
+        setError(t('social.commentLoadError'));
         console.error('Failed to load comments:', err);
       } finally {
         setIsLoading(false);
@@ -115,7 +118,7 @@ export const CommentList: React.FC<CommentListProps> = ({
     if (!content || isSubmitting) return;
 
     if (content.length > MAX_COMMENT_LENGTH) {
-      Alert.alert('エラー', `コメントは${MAX_COMMENT_LENGTH}文字以内で入力してください`);
+      Alert.alert(t('common.error'), t('social.commentCharLimit', { max: MAX_COMMENT_LENGTH }));
       return;
     }
 
@@ -146,8 +149,8 @@ export const CommentList: React.FC<CommentListProps> = ({
       setComments((prev) => prev.filter((c) => c.id !== tempId));
       setNewComment(content);
 
-      const errorMessage = err instanceof Error ? err.message : 'コメントの投稿に失敗しました';
-      Alert.alert('エラー', errorMessage);
+      const errorMessage = err instanceof Error ? err.message : t('social.commentPostError');
+      Alert.alert(t('common.error'), errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -156,10 +159,10 @@ export const CommentList: React.FC<CommentListProps> = ({
   // Handle delete comment
   const handleDeleteComment = useCallback(
     async (commentId: string) => {
-      Alert.alert('確認', 'このコメントを削除しますか？', [
-        { text: 'キャンセル', style: 'cancel' },
+      Alert.alert(t('common.confirm'), t('social.commentDeleteConfirm'), [
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '削除',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             // Optimistic update
@@ -174,7 +177,7 @@ export const CommentList: React.FC<CommentListProps> = ({
               if (deletedComment) {
                 setComments((prev) => [...prev, deletedComment]);
               }
-              Alert.alert('エラー', 'コメントの削除に失敗しました');
+              Alert.alert(t('common.error'), t('social.commentDeleteError'));
             }
           },
         },

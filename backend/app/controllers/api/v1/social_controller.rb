@@ -21,6 +21,8 @@ module Api
     #   - FR-8: Social Features (AC-8.1〜AC-8.7)
     #
     class SocialController < BaseController
+      REPORTABLE_TYPES = { 'Photo' => Photo, 'Comment' => Comment }.freeze
+
       # Authentication required for all actions
       before_action :authenticate_user!
       before_action :set_photo, only: %i[like unlike comments create_comment]
@@ -40,32 +42,19 @@ module Api
       #     }
       #   }
       def like
-        # Check if already liked
-        existing_like = @photo.likes.find_by(user: current_user)
+        # Use find_or_create_by to avoid race condition (check-then-act)
+        like = @photo.likes.find_or_create_by(user: current_user)
 
-        if existing_like
-          render_success(
-            data: {
-              liked: true,
-              like_count: @photo.like_count
-            }
-          )
-          return
-        end
-
-        # Create new like
-        like = @photo.likes.build(user: current_user)
-
-        if like.save
-          # Send notification to photo owner (async to not block response)
-          send_like_notification_async(@photo)
+        if like.persisted?
+          # Send notification only for newly created likes
+          send_like_notification_async(@photo) if like.previously_new_record?
 
           render_success(
             data: {
               liked: true,
               like_count: @photo.reload.like_count
             },
-            status: :created
+            status: like.previously_new_record? ? :created : :ok
           )
         else
           render_error(
@@ -302,8 +291,9 @@ module Api
           )
         end
 
-        # Validate reportable type
-        unless %w[Photo Comment].include?(reportable_type)
+        # Validate reportable type via Hash lookup (avoids constantize injection)
+        klass = REPORTABLE_TYPES[reportable_type]
+        unless klass
           return render_error(
             code: ErrorHandler::ErrorCodes::VALIDATION_FAILED,
             message: "Invalid reportable type. Must be 'Photo' or 'Comment'",
@@ -312,7 +302,7 @@ module Api
         end
 
         # Find the reportable content
-        reportable = reportable_type.constantize.find_by(id: reportable_id)
+        reportable = klass.find_by(id: reportable_id)
 
         unless reportable
           return render_error(

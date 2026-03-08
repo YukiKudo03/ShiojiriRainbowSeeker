@@ -27,6 +27,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { Image } from 'expo-image';
+import { useTranslation } from 'react-i18next';
 
 import {
   MIN_TOUCH_TARGET_SIZE,
@@ -78,19 +79,21 @@ const PhotoCardComponent: React.FC<PhotoCardProps> = ({
   style,
   testID,
 }) => {
+  const { t } = useTranslation();
+
   const handlePress = useCallback(() => {
     onPress(photo);
   }, [photo, onPress]);
 
   // Generate accessibility label with all relevant information
   const accessibilityLabel = createScreenReaderAnnouncement(
-    photo.title || '虹の写真',
-    `投稿者: ${photo.user.displayName}`,
-    photo.location?.name && `場所: ${photo.location.name}`,
-    `日付: ${formatDate(photo.capturedAt)}`,
-    `${formatNumberForScreenReader(photo.likeCount)}件のいいね`,
-    `${formatNumberForScreenReader(photo.commentCount)}件のコメント`,
-    'ダブルタップで詳細を表示'
+    photo.title || t('photo.rainbowPhoto'),
+    t('photo.postedBy', { name: photo.user.displayName }),
+    photo.location?.name && t('photo.locationLabel', { name: photo.location.name }),
+    t('photo.dateLabel', { date: formatDate(photo.capturedAt) }),
+    t('photo.likesCount', { count: formatNumberForScreenReader(photo.likeCount) }),
+    t('photo.commentsCount', { count: formatNumberForScreenReader(photo.commentCount) }),
+    t('photo.doubleTapForDetail')
   );
 
   return (
@@ -101,7 +104,7 @@ const PhotoCardComponent: React.FC<PhotoCardProps> = ({
       accessible={true}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
-      accessibilityHint="写真の詳細画面に移動します"
+      accessibilityHint={t('photo.navigateToDetail')}
       testID={testID}
     >
       {/* Photo Thumbnail */}
@@ -112,7 +115,7 @@ const PhotoCardComponent: React.FC<PhotoCardProps> = ({
         placeholderContentFit="cover"
         transition={200}
         cachePolicy="memory-disk"
-        accessibilityLabel={photo.title || '虹の写真'}
+        accessibilityLabel={photo.title || t('photo.rainbowPhoto')}
         accessibilityRole="image"
       />
 

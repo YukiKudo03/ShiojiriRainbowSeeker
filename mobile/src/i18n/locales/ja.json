@@ -97,8 +97,40 @@
       "description": "新しい虹の発見や、あなたの投稿へのいいね・コメントがあった時に通知でお知らせします。"
     },
     "skip": "スキップ",
+    "skipAccessibility": "オンボーディングをスキップ",
     "next": "次へ",
     "getStarted": "はじめる"
+  },
+  "camera": {
+    "title": "虹を撮影",
+    "permissionTitle": "カメラの許可が必要です",
+    "permissionText": "虹の写真を撮影するには、カメラへのアクセスを許可してください。",
+    "grantPermission": "許可する",
+    "selectFromGallery": "ギャラリーから選択",
+    "initializing": "カメラを初期化中...",
+    "gettingLocation": "位置情報を取得中...",
+    "locationUnavailable": "位置情報を取得できません",
+    "locationDenied": "位置情報の許可が拒否されました。手動で位置を設定できます。",
+    "locationError": "位置情報を取得できません",
+    "captureError": "写真の撮影に失敗しました",
+    "captureRetry": "写真の撮影に失敗しました。もう一度お試しください。",
+    "fileTooLarge": "ファイルが大きすぎます",
+    "fileTooLargeMessage": "選択した画像は{{size}}MBを超えています。小さい画像を選択してください。",
+    "noLocationData": "位置情報がありません",
+    "noLocationDataMessage": "この写真にはGPSデータがありません。現在地を使用しますか？",
+    "useCurrentLocation": "現在地を使用",
+    "setLocationManually": "手動で設定",
+    "permissionRequired": "許可が必要です",
+    "permissionRequiredMessage": "画像を選択するには、フォトライブラリへのアクセスを許可してください。",
+    "galleryError": "写真の選択に失敗しました。もう一度お試しください。",
+    "gallery": "ギャラリー",
+    "flip": "切替",
+    "capturePhoto": "写真を撮影",
+    "captureHint": "虹の写真を撮影します",
+    "galleryHint": "フォトギャラリーを開いて画像を選択します",
+    "flipCamera": "カメラを切り替え",
+    "flipHint": "フロントカメラとバックカメラを切り替えます",
+    "tip": "ヒント: 虹に向けてキャプチャボタンをタップ"
   },
   "feed": {
     "title": "フィード",
@@ -106,7 +138,10 @@
     "noPhotos": "まだ写真がありません",
     "beFirstToShare": "最初の虹を共有しましょう！",
     "loading": "写真を読み込み中...",
-    "refreshing": "更新中..."
+    "refreshing": "更新中...",
+    "refreshed": "フィードを更新しました",
+    "filtersApplied": "フィルタを適用しました",
+    "filtersCleared": "すべてのフィルタをクリアしました"
   },
   "photo": {
     "rainbow": "虹",
@@ -128,7 +163,15 @@
     "takePhoto": "写真を撮る",
     "chooseFromLibrary": "ライブラリから選択",
     "deletePhoto": "写真を削除",
-    "deletePhotoConfirm": "この写真を削除してもよろしいですか？"
+    "deletePhotoConfirm": "この写真を削除してもよろしいですか？",
+    "rainbowPhoto": "虹の写真",
+    "postedBy": "投稿者: {{name}}",
+    "locationLabel": "場所: {{name}}",
+    "dateLabel": "日付: {{date}}",
+    "likesCount": "{{count}}件のいいね",
+    "commentsCount": "{{count}}件のコメント",
+    "doubleTapForDetail": "ダブルタップで詳細を表示",
+    "navigateToDetail": "写真の詳細画面に移動します"
   },
   "map": {
     "title": "マップ",
@@ -203,7 +246,12 @@
     "deleteComment": "コメントを削除",
     "reportReason": "報告の理由",
     "reportSubmitted": "報告を送信しました",
-    "deletedUser": "削除されたユーザー"
+    "deletedUser": "削除されたユーザー",
+    "commentLoadError": "コメントの読み込みに失敗しました",
+    "commentPostError": "コメントの投稿に失敗しました",
+    "commentDeleteError": "コメントの削除に失敗しました",
+    "commentDeleteConfirm": "このコメントを削除しますか？",
+    "commentCharLimit": "コメントは{{max}}文字以内で入力してください"
   },
   "settings": {
     "title": "設定",
