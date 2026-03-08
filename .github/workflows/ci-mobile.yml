@@ -102,7 +102,7 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit -- --coverage --coverageReporters=json-summary --coverageReporters=text
 
-      - name: Check coverage threshold (50%)
+      - name: Check coverage threshold (90%)
         run: |
           COVERAGE_FILE="coverage/coverage-summary.json"
           if [ ! -f "$COVERAGE_FILE" ]; then
@@ -111,9 +111,9 @@ jobs:
           fi
           TOTAL=$(node -e "const c = require('./$COVERAGE_FILE'); console.log(c.total.lines.pct)")
           echo "Total line coverage: ${TOTAL}%"
-          PASS=$(node -e "console.log($TOTAL >= 50 ? 'true' : 'false')")
+          PASS=$(node -e "console.log($TOTAL >= 90 ? 'true' : 'false')")
           if [ "$PASS" != "true" ]; then
-            echo "::error::Coverage ${TOTAL}% is below 50% threshold"
+            echo "::error::Coverage ${TOTAL}% is below 90% threshold"
             exit 1
           fi
 

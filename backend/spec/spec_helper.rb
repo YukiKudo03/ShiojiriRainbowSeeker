@@ -22,8 +22,8 @@ if ENV["COVERAGE"] || ENV["CI"]
     add_group "Validators", "app/validators"
     add_group "Lib", "lib"
 
-    # Set minimum coverage threshold (80%)
-    minimum_coverage 80
+    # Set minimum coverage threshold (90%)
+    minimum_coverage 90
     minimum_coverage_by_file 50
 
     # Enable branch coverage
@@ -36,7 +36,7 @@ if ENV["COVERAGE"] || ENV["CI"]
     formatter SimpleCov::Formatter::HTMLFormatter
   end
 
-  puts "SimpleCov started with minimum coverage: 80%"
+  puts "SimpleCov started with minimum coverage: 90%"
 end
 
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration

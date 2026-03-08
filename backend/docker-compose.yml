@@ -117,6 +117,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-shiojiri}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shiojiri_dev_password}
       DEVISE_JWT_SECRET_KEY: ${DEVISE_JWT_SECRET_KEY:-test_jwt_secret_key}
+      COVERAGE: "1"
     volumes:
       - .:/rails:cached
       - bundle_cache:/usr/local/bundle

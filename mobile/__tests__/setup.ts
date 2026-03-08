@@ -74,6 +74,17 @@ jest.mock('@react-native-community/netinfo', () => ({
       type: 'wifi',
     })
   ),
+  NetInfoStateType: {
+    unknown: 'unknown',
+    none: 'none',
+    cellular: 'cellular',
+    wifi: 'wifi',
+    bluetooth: 'bluetooth',
+    ethernet: 'ethernet',
+    wimax: 'wimax',
+    vpn: 'vpn',
+    other: 'other',
+  },
 }));
 
 // Mock @sentry/react-native

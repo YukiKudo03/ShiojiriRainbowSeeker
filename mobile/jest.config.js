@@ -14,7 +14,7 @@ module.exports = {
   testEnvironment: 'node',
   rootDir: '.',
   testMatch: ['<rootDir>/__tests__/**/*.test.ts', '<rootDir>/__tests__/**/*.test.tsx'],
-  testPathIgnorePatterns: ['/node_modules/', '/e2e/', '/__tests__/components/'],
+  testPathIgnorePatterns: ['/node_modules/', '/e2e/', '/__tests__/components/', '\\.component\\.test\\.'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {
     '^.+\\.tsx?$': [
@@ -29,6 +29,16 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   setupFiles: ['<rootDir>/__tests__/setup.ts'],
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/index.ts',
+    '!src/types/**',
+    '!src/i18n/**',
+    '!src/navigation/**',
+    '!src/screens/**',
+    '!src/hooks/**',
+    '!src/components/**',
+  ],
   clearMocks: true,
   restoreMocks: true,
 };

@@ -19,11 +19,8 @@ class RadarDatumSerializer < ApplicationSerializer
     rd.recorded_at&.iso8601
   end
 
-  # Precipitation intensity
-  attribute :precipitation_intensity
-
-  # Type of precipitation (rain, snow, etc.)
-  attribute :precipitation_type
+  # Precipitation intensity and type
+  attributes :precipitation_intensity, :precipitation_type
 
   # Radar image URL with CDN support
   attribute :radar_image_url do |rd|

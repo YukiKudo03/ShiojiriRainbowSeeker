@@ -244,6 +244,6 @@ class PhotoSerializer < ApplicationSerializer
       photo.location_name
     end
 
-    attribute :like_count
+    attributes :like_count
   end
 end

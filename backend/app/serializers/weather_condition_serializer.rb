@@ -16,26 +16,9 @@ class WeatherConditionSerializer < ApplicationSerializer
     wc.timestamp&.iso8601
   end
 
-  # Temperature in Celsius
-  attribute :temperature
-
-  # Humidity percentage
-  attribute :humidity
-
-  # Atmospheric pressure in hPa
-  attribute :pressure
-
-  # Wind speed in m/s
-  attribute :wind_speed
-
-  # Wind direction in degrees (0-360)
-  attribute :wind_direction
-
-  # Weather code from API
-  attribute :weather_code
-
-  # Human-readable weather description
-  attribute :weather_description
+  # Weather metrics
+  attributes :temperature, :humidity, :pressure, :wind_speed,
+             :wind_direction, :weather_code, :weather_description
 
   # Cloud coverage percentage
   attribute :cloud_coverage do |wc|
@@ -43,7 +26,7 @@ class WeatherConditionSerializer < ApplicationSerializer
   end
 
   # Visibility in meters
-  attribute :visibility
+  attributes :visibility
 
   # Sun position data
   attribute :sun_position do |wc|
@@ -74,7 +57,7 @@ class WeatherConditionSerializer < ApplicationSerializer
 
     attributes :temperature, :humidity
 
-    attribute :weather_description
+    attributes :weather_description
 
     attribute :sun_elevation do |wc|
       wc.sun_altitude
