@@ -1,0 +1,12 @@
+name: shiojiri-rainbow-mobile
+
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: shiojiri-mobile-test
+    environment:
+      CI: "true"
+      FORCE_COLOR: "0"

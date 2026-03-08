@@ -74,7 +74,7 @@ jobs:
   # ==========================================================================
   # Unit Tests
   # ==========================================================================
-  test:
+  test-unit:
     name: Unit Tests
     runs-on: ubuntu-latest
     needs: lint
@@ -96,14 +96,50 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Jest tests
-        run: npm test -- --coverage --coverageReporters=json-summary --coverageReporters=text
+      - name: Run unit tests
+        run: npm run test:unit -- --coverage --coverageReporters=json-summary --coverageReporters=text
 
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: mobile-coverage
+          name: mobile-unit-coverage
+          path: mobile/coverage/
+          retention-days: 7
+
+  # ==========================================================================
+  # Component Tests
+  # ==========================================================================
+  test-components:
+    name: Component Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run component tests
+        run: npm run test:components -- --coverage --coverageReporters=json-summary --coverageReporters=text
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-component-coverage
           path: mobile/coverage/
           retention-days: 7
 
@@ -113,7 +149,7 @@ jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test-unit, test-components]
     defaults:
       run:
         working-directory: mobile
@@ -194,7 +230,7 @@ jobs:
   mobile-summary:
     name: Mobile CI Summary
     runs-on: ubuntu-latest
-    needs: [lint, test, build, e2e-ios]
+    needs: [lint, test-unit, test-components, build, e2e-ios]
     if: always()
 
     steps:
@@ -211,10 +247,16 @@ jobs:
             echo "| Lint & Type Check | :x: Failed |" >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ "${{ needs.test.result }}" == "success" ]; then
+          if [ "${{ needs.test-unit.result }}" == "success" ]; then
             echo "| Unit Tests | :white_check_mark: Passed |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Unit Tests | :x: Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.test-components.result }}" == "success" ]; then
+            echo "| Component Tests | :white_check_mark: Passed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Component Tests | :x: Failed |" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ "${{ needs.build.result }}" == "success" ]; then
@@ -234,7 +276,8 @@ jobs:
       - name: Check overall status
         if: |
           needs.lint.result != 'success' ||
-          needs.test.result != 'success' ||
+          needs.test-unit.result != 'success' ||
+          needs.test-components.result != 'success' ||
           needs.build.result != 'success'
         run: |
           echo "::error::One or more mobile CI checks failed"

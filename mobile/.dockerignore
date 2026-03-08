@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+dist/
+build/
+android/
+ios/
+e2e/
+coverage/
+.git/
+*.log
+.DS_Store
+.env
+.env.*
+artifacts/
