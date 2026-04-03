@@ -20,6 +20,7 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 let consumer: Consumer | null = null;
 let photoFeedSubscription: Subscription | null = null;
 let notificationsSubscription: Subscription | null = null;
+let rainbowMomentSubscription: Subscription | null = null;
 
 /**
  * Build the WebSocket URL with JWT token for authentication.
@@ -55,6 +56,10 @@ export function disconnectCable(): void {
   if (notificationsSubscription) {
     notificationsSubscription.unsubscribe();
     notificationsSubscription = null;
+  }
+  if (rainbowMomentSubscription) {
+    rainbowMomentSubscription.unsubscribe();
+    rainbowMomentSubscription = null;
   }
   if (consumer) {
     consumer.disconnect();
@@ -138,5 +143,53 @@ export function subscribeToNotifications(
   return () => {
     notificationsSubscription?.unsubscribe();
     notificationsSubscription = null;
+  };
+}
+
+/** Payload received from the RainbowMomentChannel */
+export interface RainbowMomentMessage {
+  type: 'initial_state' | 'participant_joined' | 'participant_left' | 'participant_count' | 'new_photo' | 'moment_closing' | 'moment_archived';
+  moment_id?: string;
+  participant_count?: number;
+  participants?: Array<{ id: string; display_name: string; joined_at: string }>;
+  user?: { id: string; display_name: string };
+  photo?: {
+    id: string;
+    user: { id: string; display_name: string };
+    thumbnail_url: string | null;
+    latitude: number;
+    longitude: number;
+    captured_at: string;
+  };
+  status?: string;
+}
+
+/**
+ * Subscribe to a Rainbow Moment channel for real-time participation updates.
+ * @param momentId The Rainbow Moment ID to subscribe to
+ * @param onReceived callback for each message
+ * @returns unsubscribe function
+ */
+export function subscribeToRainbowMoment(
+  momentId: string,
+  onReceived: (message: RainbowMomentMessage) => void
+): () => void {
+  if (!consumer) {
+    console.warn('[Cable] Not connected — call connectCable() first');
+    return () => {};
+  }
+
+  rainbowMomentSubscription = consumer.subscriptions.create(
+    { channel: 'RainbowMomentChannel', moment_id: momentId },
+    {
+      received(data: RainbowMomentMessage) {
+        onReceived(data);
+      },
+    }
+  );
+
+  return () => {
+    rainbowMomentSubscription?.unsubscribe();
+    rainbowMomentSubscription = null;
   };
 }

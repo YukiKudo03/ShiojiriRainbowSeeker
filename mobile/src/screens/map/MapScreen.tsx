@@ -46,6 +46,7 @@ import {
   PhotoPreviewModal,
   HeatmapOverlay,
   RegionStatsModal,
+  RainbowMomentOverlay,
 } from '../../components/map';
 import {
   type MapMarker,
@@ -66,6 +67,8 @@ import {
   accessibleColors,
   MIN_TOUCH_TARGET_SIZE,
 } from '../../utils/accessibility';
+import { useRainbowMomentStore } from '../../store/rainbowMomentStore';
+import { fetchActiveMoments } from '../../services/rainbowMomentService';
 
 import type { MapScreenProps } from '../../types/navigation';
 
@@ -252,6 +255,23 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
         clearTimeout(loadHeatmapTimeoutRef.current);
       }
     };
+  }, []);
+
+  // Fetch active Rainbow Moment on mount
+  useEffect(() => {
+    const loadActiveMoment = async () => {
+      try {
+        const moments = await fetchActiveMoments();
+        if (moments.length > 0) {
+          useRainbowMomentStore.getState().setActiveMoment(moments[0]);
+        }
+      } catch {
+        // Non-critical — overlay just won't show
+        console.warn('Could not fetch active rainbow moments');
+      }
+    };
+
+    loadActiveMoment();
   }, []);
 
   /**
@@ -799,6 +819,9 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
                 />
               </TouchableOpacity>
             </View>
+
+            {/* Rainbow Moment Overlay */}
+            <RainbowMomentOverlay />
           </>
         ) : (
           renderLoading()

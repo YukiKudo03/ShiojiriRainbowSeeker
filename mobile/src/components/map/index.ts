@@ -8,3 +8,4 @@ export { ClusteredMap } from './ClusteredMap';
 export { PhotoPreviewModal } from './PhotoPreviewModal';
 export { HeatmapOverlay } from './HeatmapOverlay';
 export { RegionStatsModal } from './RegionStatsModal';
+export { RainbowMomentOverlay } from './RainbowMomentOverlay';

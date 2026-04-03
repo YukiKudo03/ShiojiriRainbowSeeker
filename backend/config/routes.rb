@@ -130,6 +130,22 @@ Rails.application.routes.draw do
         end
       end
 
+      # Rainbow Moment endpoints
+      # GET    /api/v1/rainbow_moments           - List past moments
+      # GET    /api/v1/rainbow_moments/active     - Get active moment(s)
+      # GET    /api/v1/rainbow_moments/:id        - Show moment details
+      resources :rainbow_moments, only: %i[index show] do
+        collection do
+          get :active
+        end
+      end
+
+      # Demo endpoint (dev/staging only)
+      # POST   /api/v1/demo/trigger_moment       - Manually trigger a rainbow moment
+      namespace :demo do
+        post :trigger_moment, to: "/api/v1/rainbow_moments#trigger_demo"
+      end
+
       # Statistics endpoints (public, for research/dashboard)
       # GET    /api/v1/statistics/regions              - List available regions
       # GET    /api/v1/statistics/region/:region_id    - Get region statistics

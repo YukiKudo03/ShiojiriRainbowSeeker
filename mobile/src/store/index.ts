@@ -32,3 +32,16 @@ export {
   useFailedUploadCount,
 } from './uploadQueueStore';
 export type { QueuedUpload, UploadStatus } from './uploadQueueStore';
+
+export {
+  useRainbowMomentStore,
+  useActiveMoment,
+  useIsParticipating,
+  useParticipantCount,
+  useLivePhotos,
+  selectActiveMoment,
+  selectIsParticipating,
+  selectParticipantCount,
+  selectLivePhotos,
+} from './rainbowMomentStore';
+export type { RainbowMoment, MomentPhoto } from './rainbowMomentStore';

@@ -3,3 +3,4 @@
  */
 
 export { MapScreen } from './MapScreen';
+export { RainbowMomentArchiveScreen } from './RainbowMomentArchiveScreen';

@@ -314,6 +314,24 @@
     "noNotifications": "No notifications",
     "markAllRead": "Mark all as read"
   },
+  "moment": {
+    "overlayLabel": "Rainbow Moment: {{count}} participants",
+    "participantCount": "{{count}} people are looking up at the sky right now",
+    "joinMoment": "Look up at the sky",
+    "participating": "Participating",
+    "joinButton": "Join Rainbow Moment",
+    "leaveButton": "Leave Rainbow Moment",
+    "joined": "Joined Rainbow Moment",
+    "left": "Left Rainbow Moment",
+    "closing": "Ending soon",
+    "archived": "Ended",
+    "archiveTitle": "Past Rainbow Moments",
+    "noMoments": "No Rainbow Moments yet",
+    "participants": "Participants",
+    "photos": "Photos",
+    "duration": "Duration",
+    "weather": "Weather"
+  },
   "errors": {
     "networkError": "A network error occurred",
     "serverError": "A server error occurred",

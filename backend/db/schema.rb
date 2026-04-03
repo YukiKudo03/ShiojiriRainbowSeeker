@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_07_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_03_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -129,6 +129,33 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_07_000001) do
     t.index ["photo_id"], name: "index_radar_data_on_photo_id"
   end
 
+  create_table "rainbow_moment_participations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "rainbow_moment_id", null: false
+    t.uuid "user_id", null: false
+    t.datetime "joined_at", null: false
+    t.datetime "left_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["rainbow_moment_id", "user_id"], name: "idx_moment_participations_unique", unique: true
+    t.index ["rainbow_moment_id"], name: "index_rainbow_moment_participations_on_rainbow_moment_id"
+    t.index ["user_id"], name: "index_rainbow_moment_participations_on_user_id"
+  end
+
+  create_table "rainbow_moments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "starts_at", null: false
+    t.datetime "ends_at", null: false
+    t.string "location_id", null: false
+    t.string "status", default: "active", null: false
+    t.jsonb "weather_snapshot", default: {}
+    t.integer "participants_count", default: 0, null: false
+    t.integer "photos_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["location_id"], name: "index_rainbow_moments_on_location_id"
+    t.index ["starts_at"], name: "index_rainbow_moments_on_starts_at"
+    t.index ["status"], name: "index_rainbow_moments_on_status"
+  end
+
   create_table "reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "reporter_id", null: false
     t.string "reportable_type", null: false
@@ -210,6 +237,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_07_000001) do
   add_foreign_key "notifications", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "radar_data", "photos"
+  add_foreign_key "rainbow_moment_participations", "rainbow_moments"
+  add_foreign_key "rainbow_moment_participations", "users"
   add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "reports", "users", column: "resolved_by_id"
   add_foreign_key "weather_conditions", "photos"

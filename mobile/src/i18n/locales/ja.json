@@ -314,6 +314,24 @@
     "noNotifications": "通知はありません",
     "markAllRead": "すべて既読にする"
   },
+  "moment": {
+    "overlayLabel": "レインボーモーメント: {{count}}人が参加中",
+    "participantCount": "{{count}}人が今、空を見上げています",
+    "joinMoment": "空を見上げる",
+    "participating": "参加中",
+    "joinButton": "レインボーモーメントに参加",
+    "leaveButton": "レインボーモーメントから退出",
+    "joined": "レインボーモーメントに参加しました",
+    "left": "レインボーモーメントから退出しました",
+    "closing": "まもなく終了",
+    "archived": "終了しました",
+    "archiveTitle": "過去のレインボーモーメント",
+    "noMoments": "まだレインボーモーメントがありません",
+    "participants": "参加者",
+    "photos": "写真",
+    "duration": "期間",
+    "weather": "天気"
+  },
   "errors": {
     "networkError": "ネットワークエラーが発生しました",
     "serverError": "サーバーエラーが発生しました",

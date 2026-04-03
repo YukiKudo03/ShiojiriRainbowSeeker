@@ -51,9 +51,8 @@ development:
     migrations_paths: db/cache_migrate
   # Solid Queue database (PostgreSQL-based job queue)
   queue:
+    <<: *primary_development
     adapter: postgresql
-    encoding: unicode
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
     database: shiojiri_rainbow_seeker_development_queue
     migrations_paths: db/queue_migrate
   # Solid Cable database (PostgreSQL-based ActionCable)

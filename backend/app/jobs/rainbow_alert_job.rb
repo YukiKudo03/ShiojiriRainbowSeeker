@@ -60,6 +60,9 @@ class RainbowAlertJob < ApplicationJob
 
     Rails.logger.info("[RainbowAlertJob] Found #{favorable_locations.count} favorable locations")
 
+    # Create Rainbow Moments for favorable locations
+    create_moments(favorable_locations)
+
     # Send alerts for favorable locations
     send_alerts(favorable_locations)
 
@@ -112,6 +115,48 @@ class RainbowAlertJob < ApplicationJob
     end
 
     favorable
+  end
+
+  # Create Rainbow Moments for favorable locations.
+  # Each moment represents a shared viewing event.
+  #
+  # @param favorable_locations [Array<Hash>] Locations with favorable conditions
+  def create_moments(favorable_locations)
+    favorable_locations.each do |location_data|
+      location = location_data[:location]
+      conditions = location_data[:conditions]
+
+      moment = RainbowMoment.create_for_alert(
+        location: location,
+        weather_data: {
+          temperature: conditions.dig(:temperature, :value),
+          humidity: conditions.dig(:humidity, :value),
+          cloud_cover: conditions.dig(:cloud_cover, :value),
+          sun_altitude: location_data[:sun_altitude],
+          weather_code: conditions.dig(:weather_code),
+          weather_description: conditions.dig(:weather_description),
+          visibility: conditions.dig(:visibility, :value),
+          precipitation: conditions.dig(:precipitation, :value)
+        }
+      )
+
+      # Broadcast globally that a moment started
+      ActionCable.server.broadcast("rainbow_moments:global", {
+        type: "moment_started",
+        moment: {
+          id: moment.id,
+          location_id: moment.location_id,
+          location_name: moment.location_name,
+          status: moment.status,
+          starts_at: moment.starts_at.iso8601,
+          ends_at: moment.ends_at.iso8601
+        }
+      })
+
+      Rails.logger.info("[RainbowAlertJob] Created RainbowMoment #{moment.id} for #{location[:name]}")
+    rescue StandardError => e
+      Rails.logger.error("[RainbowAlertJob] Failed to create moment for #{location[:id]}: #{e.message}")
+    end
   end
 
   # Send alerts for favorable locations
