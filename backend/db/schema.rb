@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_04_223651) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_04_224908) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -53,6 +53,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_223651) do
     t.datetime "updated_at", null: false
     t.string "deleted_user_display_name"
     t.index ["deleted_user_display_name"], name: "index_comments_on_deleted_user_display_name", where: "(deleted_user_display_name IS NOT NULL)"
+    t.index ["photo_id", "created_at"], name: "index_comments_on_photo_id_and_created_at_desc", order: { created_at: :desc }
     t.index ["photo_id"], name: "index_comments_on_photo_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
@@ -92,6 +93,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_223651) do
     t.boolean "is_read", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["user_id", "is_read", "created_at"], name: "index_notifications_on_user_read_created", order: { created_at: :desc }
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
@@ -112,7 +114,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_223651) do
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
     t.index ["captured_at"], name: "index_photos_on_captured_at"
+    t.index ["deleted_at"], name: "index_photos_on_deleted_at_not_null", where: "(deleted_at IS NOT NULL)"
     t.index ["location"], name: "index_photos_on_location", using: :gist
+    t.index ["moderation_status"], name: "index_photos_on_moderation_status"
     t.index ["user_id"], name: "index_photos_on_user_id"
   end
 
@@ -126,6 +130,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_223651) do
     t.decimal "movement_direction"
     t.decimal "movement_speed"
     t.datetime "created_at"
+    t.index ["photo_id", "timestamp"], name: "index_radar_data_on_photo_timestamp", order: { timestamp: :desc }
     t.index ["photo_id"], name: "index_radar_data_on_photo_id"
   end
 
@@ -152,6 +157,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_223651) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["location_id"], name: "index_rainbow_moments_on_location_id"
+    t.index ["location_id"], name: "index_rainbow_moments_unique_active_per_location", unique: true, where: "((status)::text = 'active'::text)"
     t.index ["starts_at"], name: "index_rainbow_moments_on_starts_at"
     t.index ["status"], name: "index_rainbow_moments_on_status"
   end
@@ -169,6 +175,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_223651) do
     t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable_type_and_reportable_id"
     t.index ["reporter_id"], name: "index_reports_on_reporter_id"
     t.index ["resolved_by_id"], name: "index_reports_on_resolved_by_id"
+    t.index ["status", "created_at"], name: "index_reports_on_status_created", order: { created_at: :desc }
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -223,6 +230,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_223651) do
     t.decimal "sun_azimuth"
     t.decimal "sun_altitude"
     t.datetime "created_at"
+    t.index ["photo_id", "timestamp"], name: "index_weather_conditions_on_photo_timestamp", order: { timestamp: :desc }
     t.index ["photo_id"], name: "index_weather_conditions_on_photo_id"
     t.index ["radar_datum_id"], name: "index_weather_conditions_on_radar_datum_id"
   end

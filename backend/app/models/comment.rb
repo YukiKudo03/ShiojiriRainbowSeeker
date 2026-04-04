@@ -83,7 +83,7 @@ class Comment < ApplicationRecord
         content: content.truncate(100),
         user: { id: user.id, display_name: user.display_name }
       },
-      comment_count: photo.reload.comment_count
+      comment_count: photo.comment_count
     })
   end
 

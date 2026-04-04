@@ -42,7 +42,7 @@ class Like < ApplicationRecord
       type: "new_like",
       photo_id: photo_id,
       user: { id: user.id, display_name: user.display_name },
-      like_count: photo.reload.like_count
+      like_count: photo.like_count
     })
   end
 

@@ -66,17 +66,13 @@ class RainbowMoment < ApplicationRecord
   # @param weather_data [Hash] Weather snapshot data
   # @return [RainbowMoment]
   def self.create_for_alert(location:, weather_data: {})
-    # Don't create if one is already active for this location
-    existing = active.for_location(location[:id]).first
-    return existing if existing
-
     now = Time.current
-    create!(
-      location_id: location[:id],
-      starts_at: now,
-      ends_at: now + DEFAULT_DURATION,
-      status: "active",
-      weather_snapshot: {
+    # Use find_or_create_by with partial unique index to prevent race conditions
+    active.find_or_create_by!(location_id: location[:id]) do |moment|
+      moment.starts_at = now
+      moment.ends_at = now + DEFAULT_DURATION
+      moment.status = "active"
+      moment.weather_snapshot = {
         temperature: weather_data[:temperature],
         humidity: weather_data[:humidity],
         cloud_cover: weather_data[:cloud_cover],
@@ -86,7 +82,10 @@ class RainbowMoment < ApplicationRecord
         visibility: weather_data[:visibility],
         precipitation_mm: weather_data[:rain_1h] || weather_data[:precipitation] || 0
       }
-    )
+    end
+  rescue ActiveRecord::RecordNotUnique
+    # Another process created it first, return the existing one
+    active.for_location(location[:id]).first!
   end
 
   # =============================================================================
