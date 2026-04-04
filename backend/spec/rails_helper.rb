@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "rails_helper"
+require "spec_helper"
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 

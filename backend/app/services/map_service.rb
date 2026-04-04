@@ -203,16 +203,20 @@ class MapService
 
   # Execute PostGIS clustering query
   def execute_clustering_query(bounds, filters, cluster_distance, min_points)
+    conn = ActiveRecord::Base.connection
+
     # Convert meters to degrees (approximate for this latitude)
     # At ~36°N latitude, 1 degree ≈ 90km for longitude, 111km for latitude
-    eps_degrees = cluster_distance / 111_000.0
+    eps_degrees = cluster_distance.to_f / 111_000.0
+    safe_min_points = min_points.to_i
 
     # Build WHERE clause for bounds and filters
     where_conditions = build_where_conditions(bounds, filters)
 
     # PostGIS ST_ClusterDBSCAN query
     # Note: ST_ClusterDBSCAN uses degrees for the eps parameter when working with geography
-    sql = <<~SQL
+    # Values are sanitized via .to_f/.to_i and conn.quote to prevent SQL injection
+    sql = ActiveRecord::Base.sanitize_sql_array([<<~SQL, eps_degrees, safe_min_points])
       WITH filtered_photos AS (
         SELECT id, location, captured_at, title
         FROM photos
@@ -227,7 +231,7 @@ class MapService
           ST_X(location::geometry) as longitude,
           captured_at,
           title,
-          ST_ClusterDBSCAN(location::geometry, #{eps_degrees}, #{min_points}) OVER () as cluster_id
+          ST_ClusterDBSCAN(location::geometry, ?, ?) OVER () as cluster_id
         FROM filtered_photos
       )
       SELECT
@@ -243,7 +247,7 @@ class MapService
       ORDER BY count DESC
     SQL
 
-    result = ActiveRecord::Base.connection.execute(sql)
+    result = conn.execute(sql)
     result.map do |row|
       {
         cluster_id: row["cluster_id"] || -1,
@@ -259,25 +263,28 @@ class MapService
 
   # Execute heatmap query using ST_SnapToGrid
   def execute_heatmap_query(bounds, filters, grid_size)
+    conn = ActiveRecord::Base.connection
+
     # Convert meters to degrees (approximate)
-    grid_degrees = grid_size / 111_000.0
+    grid_degrees = grid_size.to_f / 111_000.0
 
     where_conditions = build_where_conditions(bounds, filters)
 
-    sql = <<~SQL
+    # Values are sanitized via .to_f and sanitize_sql_array to prevent SQL injection
+    sql = ActiveRecord::Base.sanitize_sql_array([<<~SQL, grid_degrees, grid_degrees, grid_degrees])
       SELECT
-        ST_Y(ST_SnapToGrid(location::geometry, #{grid_degrees})) as latitude,
-        ST_X(ST_SnapToGrid(location::geometry, #{grid_degrees})) as longitude,
+        ST_Y(ST_SnapToGrid(location::geometry, ?)) as latitude,
+        ST_X(ST_SnapToGrid(location::geometry, ?)) as longitude,
         COUNT(*) as count
       FROM photos
       WHERE is_visible = true
         AND moderation_status = 1
         AND #{where_conditions}
-      GROUP BY ST_SnapToGrid(location::geometry, #{grid_degrees})
+      GROUP BY ST_SnapToGrid(location::geometry, ?)
       ORDER BY count DESC
     SQL
 
-    result = ActiveRecord::Base.connection.execute(sql)
+    result = conn.execute(sql)
     result.map do |row|
       {
         latitude: row["latitude"].to_f,

@@ -34,11 +34,11 @@ class RainbowMomentChannel < ApplicationCable::Channel
     end
 
     # Send current state to the newly subscribed client
-    transmit(
+    transmit({
       type: "initial_state",
       moment: serialize_moment(@moment),
       participant_count: @moment.active_participants_count
-    )
+    })
   end
 
   def unsubscribed
