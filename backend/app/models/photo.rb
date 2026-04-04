@@ -110,7 +110,7 @@ class Photo < ApplicationRecord
   validate :validate_image_size, if: -> { image.attached? }
 
   # Moderation status enumeration
-  enum :moderation_status, { pending: 0, approved: 1, hidden: 2, deleted: 3 }
+  enum :moderation_status, { pending: 0, approved: 1, hidden: 2, deleted: 3, rejected: 4, flagged: 5 }
 
   # Callbacks
   after_create_commit :broadcast_new_photo

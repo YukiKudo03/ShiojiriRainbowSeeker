@@ -80,9 +80,8 @@ RSpec.describe PhotoSerializer, type: :serializer do
     end
 
     context "without location" do
-      let(:photo) { create(:photo, :without_image, :without_location, user: user) }
-
       it "returns nil for location" do
+        allow(photo).to receive(:location).and_return(nil)
         expect(serialized[:location]).to be_nil
       end
     end

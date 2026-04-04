@@ -161,7 +161,7 @@ class ImageModerationService
 
     # Check filename for suspicious patterns
     filename = blob.filename.to_s.downcase
-    suspicious_patterns = /\b(nsfw|adult|xxx|explicit)\b/
+    suspicious_patterns = /(nsfw|adult|xxx|explicit)/
     if filename.match?(suspicious_patterns)
       categories["suspicious_filename"] = 0.8
       reasons << "Suspicious filename detected"
@@ -176,7 +176,7 @@ class ImageModerationService
         aspect_ratio = width.to_f / height.to_f
         # Extremely unusual aspect ratios might indicate non-photo content
         if aspect_ratio > 10.0 || aspect_ratio < 0.1
-          categories["unusual_dimensions"] = 0.5
+          categories["unusual_dimensions"] = 0.7
           reasons << "Unusual image dimensions"
         end
       end

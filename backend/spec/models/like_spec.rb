@@ -13,7 +13,7 @@ RSpec.describe Like, type: :model do
   describe "validations" do
     subject { create(:like) }
 
-    it { is_expected.to validate_uniqueness_of(:user_id).scoped_to(:photo_id).with_message("has already liked this photo") }
+    it { is_expected.to validate_uniqueness_of(:user_id).scoped_to(:photo_id).case_insensitive.with_message("has already liked this photo") }
   end
 
   describe "uniqueness enforcement" do

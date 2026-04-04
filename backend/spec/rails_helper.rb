@@ -47,4 +47,12 @@ RSpec.configure do |config|
 
   # Include FactoryBot methods
   config.include FactoryBot::Syntax::Methods if defined?(FactoryBot)
+
+  # Clear enqueued jobs between tests to prevent state leaking
+  config.before(:each) do
+    if ActiveJob::Base.queue_adapter.respond_to?(:enqueued_jobs)
+      ActiveJob::Base.queue_adapter.enqueued_jobs.clear
+      ActiveJob::Base.queue_adapter.performed_jobs.clear
+    end
+  end
 end

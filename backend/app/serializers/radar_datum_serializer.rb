@@ -16,11 +16,11 @@ class RadarDatumSerializer < ApplicationSerializer
 
   # Timestamp of the radar reading
   attribute :recorded_at do |rd|
-    rd.recorded_at&.iso8601
+    rd.timestamp&.iso8601
   end
 
-  # Precipitation intensity and type
-  attributes :precipitation_intensity, :precipitation_type
+  # Precipitation intensity
+  attributes :precipitation_intensity
 
   # Radar image URL with CDN support
   attribute :radar_image_url do |rd|

@@ -34,8 +34,9 @@ RSpec.describe ApplicationJob, type: :job do
     end
 
     it "logs start and completion messages" do
-      expect(Rails.logger).to receive(:info).with(/Starting job/)
-      expect(Rails.logger).to receive(:info).with(/Completed job.*in.*s/)
+      allow(Rails.logger).to receive(:info).and_call_original
+      expect(Rails.logger).to receive(:info).with(/Starting job/).at_least(:once)
+      expect(Rails.logger).to receive(:info).with(/Completed job.*in.*s/).at_least(:once)
 
       test_job_class.perform_now
     end

@@ -51,8 +51,8 @@ class PhotoSerializer < ApplicationSerializer
   # Image URLs for list view (thumbnail and medium only)
   attribute :image_urls do |photo|
     {
-      thumbnail: generate_variant_url(photo, :thumbnail),
-      medium: generate_variant_url(photo, :medium)
+      thumbnail: PhotoSerializer.generate_variant_url(photo, :thumbnail),
+      medium: PhotoSerializer.generate_variant_url(photo, :medium)
     }
   end
 
@@ -181,39 +181,34 @@ class PhotoSerializer < ApplicationSerializer
     end
 
     # Whether current user has liked this photo
-    attribute :liked_by_current_user do |photo, params|
-      current_user = params[:current_user]
+    attribute :liked_by_current_user do
+      current_user = params&.[](:current_user)
       next false unless current_user
 
-      photo.liked_by?(current_user)
+      object.liked_by?(current_user)
     end
 
     # Whether current user owns this photo
-    attribute :is_owner do |photo, params|
-      current_user = params[:current_user]
+    attribute :is_owner do
+      current_user = params&.[](:current_user)
       next false unless current_user
 
-      photo.user_id == current_user.id
+      object.user_id == current_user.id
     end
 
     # Moderation status (only for owner/admin)
-    attribute :moderation_status do |photo, params|
-      current_user = params[:current_user]
+    attribute :moderation_status do
+      current_user = params&.[](:current_user)
 
       # Only show to owner or admin
-      if current_user && (photo.user_id == current_user.id || current_user.admin?)
-        photo.moderation_status
+      if current_user && (object.user_id == current_user.id || current_user.admin?)
+        object.moderation_status
       end
     end
 
     # Image dimensions
     attribute :dimensions do |photo|
-      next nil unless photo.image_width.present? && photo.image_height.present?
-
-      {
-        width: photo.image_width,
-        height: photo.image_height
-      }
+      photo.image_dimensions
     end
 
     # Creation timestamp

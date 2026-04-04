@@ -24,8 +24,8 @@ FactoryBot.define do
       photo.set_location(lat, lng)
     end
 
-    # Attach a test image (unless skip_image is true)
-    after(:build) do |photo, evaluator|
+    # Attach a test image after record is saved (unless skip_image is true)
+    after(:create) do |photo, evaluator|
       unless evaluator.skip_image
         image_path = Rails.root.join("spec/fixtures/files/test_image.jpg")
         if image_path.exist?

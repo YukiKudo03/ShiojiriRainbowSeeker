@@ -24,7 +24,7 @@ class Rack::Attack
 
   # Authentication endpoints: stricter limit (10 per minute per IP)
   throttle("auth/ip", limit: 10, period: 1.minute) do |req|
-    if req.path.match?(%r{/api/v1/(login|register|password)}) && req.post?
+    if req.path.match?(%r{/api/v1/auth/(login|register|password)}) && req.post?
       req.ip
     end
   end

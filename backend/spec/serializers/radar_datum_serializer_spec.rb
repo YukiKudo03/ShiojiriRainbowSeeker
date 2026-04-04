@@ -28,10 +28,6 @@ RSpec.describe RadarDatumSerializer, type: :serializer do
       expect(serialized[:precipitationIntensity]).to eq(3.5)
     end
 
-    it "includes precipitationType" do
-      expect(serialized).to have_key(:precipitationType)
-    end
-
     it "returns nil for radarImageUrl when no image is attached" do
       expect(serialized[:radarImageUrl]).to be_nil
     end

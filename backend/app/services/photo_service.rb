@@ -126,6 +126,9 @@ class PhotoService
 
     # Validate and save
     if photo.save
+      # Queue image processing job (EXIF extraction, variant generation, moderation)
+      ImageProcessingJob.perform_later(photo.id) if photo.image.attached?
+
       # Queue weather data fetch job if location is provided
       enqueue_weather_fetch(photo) if photo.location.present?
 

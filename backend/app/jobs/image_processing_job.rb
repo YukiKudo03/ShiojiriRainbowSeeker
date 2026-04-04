@@ -35,9 +35,11 @@ class ImageProcessingJob < ApplicationJob
   # Discard if photo no longer exists
   discard_on ActiveRecord::RecordNotFound
 
-  # Discard if image processing fails permanently
-  discard_on Vips::Error do |job, error|
-    Rails.logger.error("[ImageProcessingJob] Permanent failure for photo #{job.arguments.first}: #{error.message}")
+  # Discard if image processing fails permanently (ruby-vips)
+  if defined?(Vips::Error)
+    discard_on Vips::Error do |job, error|
+      Rails.logger.error("[ImageProcessingJob] Permanent failure for photo #{job.arguments.first}: #{error.message}")
+    end
   end
 
   # Main job execution
@@ -51,7 +53,7 @@ class ImageProcessingJob < ApplicationJob
     Rails.logger.info("[ImageProcessingJob] Processing photo #{photo_id}")
 
     # Run image content moderation before processing
-    moderation_result = ImageModerationService.new.moderate(@photo)
+    moderation_result = moderation_service.moderate(@photo)
     handle_moderation_result(moderation_result)
 
     # Only proceed with full processing if not rejected
@@ -70,9 +72,6 @@ class ImageProcessingJob < ApplicationJob
     end
 
     Rails.logger.info("[ImageProcessingJob] Successfully processed photo #{photo_id}")
-  rescue Vips::Error => e
-    Rails.logger.error("[ImageProcessingJob] Vips error processing photo #{photo_id}: #{e.message}")
-    raise
   rescue StandardError => e
     Rails.logger.error("[ImageProcessingJob] Error processing photo #{photo_id}: #{e.message}")
     Rails.logger.error(e.backtrace.first(5).join("\n"))
@@ -88,26 +87,30 @@ class ImageProcessingJob < ApplicationJob
   def extract_exif_data(file_path)
     data = {}
 
-    begin
-      # Use Vips to read image metadata (faster than mini_exiftool)
-      image = Vips::Image.new_from_file(file_path)
+    if defined?(Vips)
+      begin
+        # Use Vips to read image metadata (faster than mini_exiftool)
+        image = Vips::Image.new_from_file(file_path)
 
-      # Try to get EXIF data from image fields
-      data[:width] = image.width
-      data[:height] = image.height
+        # Try to get EXIF data from image fields
+        data[:width] = image.width
+        data[:height] = image.height
 
-      # Extract GPS coordinates if available
-      gps_data = extract_gps_from_vips(image)
-      data.merge!(gps_data) if gps_data.present?
+        # Extract GPS coordinates if available
+        gps_data = extract_gps_from_vips(image)
+        data.merge!(gps_data) if gps_data.present?
 
-      # Extract capture time if available
-      capture_time = extract_capture_time(image)
-      data[:captured_at] = capture_time if capture_time.present?
+        # Extract capture time if available
+        capture_time = extract_capture_time(image)
+        data[:captured_at] = capture_time if capture_time.present?
 
-      # Extract orientation
-      data[:orientation] = image.get("orientation") rescue nil
-    rescue Vips::Error => e
-      Rails.logger.warn("[ImageProcessingJob] Could not read EXIF data: #{e.message}")
+        # Extract orientation
+        data[:orientation] = image.get("orientation") rescue nil
+      rescue Vips::Error => e
+        Rails.logger.warn("[ImageProcessingJob] Could not read EXIF data: #{e.message}")
+      end
+    else
+      Rails.logger.warn("[ImageProcessingJob] Vips not available, skipping EXIF extraction")
     end
 
     # Fallback: try to extract GPS using exif field directly
@@ -279,9 +282,15 @@ class ImageProcessingJob < ApplicationJob
       Rails.logger.info("[ImageProcessingJob] Photo #{@photo.id} flagged for manual review: #{result[:reasons].join(', ')}")
     when :approved
       Rails.logger.debug("[ImageProcessingJob] Photo #{@photo.id} passed moderation")
+    else
+      Rails.logger.warn("[ImageProcessingJob] Unknown moderation action: #{result[:action].inspect}")
     end
   rescue StandardError => e
-    Rails.logger.warn("[ImageProcessingJob] Failed to update moderation status: #{e.message}")
+    Rails.logger.warn("[ImageProcessingJob] Failed to update moderation status: #{e.class} #{e.message}")
+  end
+
+  def moderation_service
+    ImageModerationService.new
   end
 
   # Pre-generate image variants for faster access

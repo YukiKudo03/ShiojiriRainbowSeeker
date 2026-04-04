@@ -74,6 +74,7 @@ RSpec.describe ApplicationCable::Connection, type: :channel do
     context "when JWT secret is nil" do
       it "rejects the connection" do
         allow(Rails.application.credentials).to receive(:devise_jwt_secret_key).and_return(nil)
+        allow(ENV).to receive(:fetch).and_call_original
         allow(ENV).to receive(:fetch).with("DEVISE_JWT_SECRET_KEY", nil).and_return(nil)
 
         token = encode_jwt({ sub: user.id })

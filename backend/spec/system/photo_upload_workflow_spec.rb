@@ -107,7 +107,8 @@ RSpec.describe "Photo Upload Workflow", type: :request do
 
       photo = Photo.last
 
-      perform_enqueued_jobs(only: ImageProcessingJob)
+      # Run job directly so RSpec mocks are in scope
+      ImageProcessingJob.perform_now(photo.id)
 
       photo.reload
       expect(photo.moderation_status).to eq("rejected")
@@ -115,14 +116,6 @@ RSpec.describe "Photo Upload Workflow", type: :request do
     end
 
     it "flags a photo for manual review when moderation returns flagged" do
-      allow_any_instance_of(ImageModerationService).to receive(:moderate).and_return(
-        approved: true,
-        action: :flagged,
-        reasons: [ "Suspicious content" ],
-        confidence: 0.7,
-        categories: { "suspicious_filename" => 0.7 }
-      )
-
       post api_v1_path("/photos"),
            params: {
              photo: {
@@ -137,7 +130,22 @@ RSpec.describe "Photo Upload Workflow", type: :request do
 
       photo = Photo.last
 
-      perform_enqueued_jobs(only: ImageProcessingJob)
+      # Set up stubs AFTER the POST so they don't interfere with image attachment
+      allow_any_instance_of(ImageModerationService).to receive(:moderate).and_return(
+        approved: true,
+        action: :flagged,
+        reasons: [ "Suspicious content" ],
+        confidence: 0.7,
+        categories: { "suspicious_filename" => 0.7 }
+      )
+      allow_any_instance_of(ActiveStorage::Blob).to receive(:open).and_yield(
+        Tempfile.new([ "test", ".jpg" ])
+      )
+      allow_any_instance_of(ImageProcessingJob).to receive(:extract_exif_data).and_return({})
+      allow_any_instance_of(ImageProcessingJob).to receive(:generate_variants)
+
+      # Run job directly so RSpec mocks are in scope
+      ImageProcessingJob.perform_now(photo.id)
 
       photo.reload
       expect(photo.moderation_status).to eq("flagged")

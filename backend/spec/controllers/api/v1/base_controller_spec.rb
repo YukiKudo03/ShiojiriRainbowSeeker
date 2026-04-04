@@ -6,7 +6,7 @@ RSpec.describe Api::V1::BaseController, type: :request do
 
   describe "render_success" do
     it "returns data in standardized format" do
-      get "/api/v1/health", headers: json_headers
+      get "/api/v1/photos", headers: json_headers
       expect(response).to have_http_status(:ok)
 
       body = JSON.parse(response.body)
@@ -55,7 +55,7 @@ RSpec.describe Api::V1::BaseController, type: :request do
     end
 
     it "returns unauthorized for unauthenticated user" do
-      delete "/api/v1/auth/logout", headers: json_headers
+      get "/api/v1/users/me", headers: json_headers
       expect(response).to have_http_status(:unauthorized)
     end
   end

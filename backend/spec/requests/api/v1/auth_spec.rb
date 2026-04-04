@@ -3,6 +3,7 @@
 require "rails_helper"
 
 RSpec.describe "Api::V1::Auth", type: :request do
+  before { Rack::Attack.reset! }
   describe "POST /api/v1/auth/register" do
     let(:valid_params) do
       {

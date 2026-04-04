@@ -181,9 +181,9 @@ RSpec.describe Admin::ReportSerializer, type: :serializer do
     end
 
     context "with a Comment reportable" do
-      let(:comment) { create(:comment, content: "Spam content here") }
+      let(:comment) { create(:comment, content: "きれいな虹でした") }
       let(:comment_report) do
-        create(:report, reporter: reporter, reportable: comment, reason: "Spam")
+        create(:report, reporter: reporter, reportable: comment, reason: "不適切な内容")
       end
 
       subject(:serialized) { described_class::Detail.new(comment_report).to_h }
@@ -191,7 +191,7 @@ RSpec.describe Admin::ReportSerializer, type: :serializer do
       it "includes Comment-specific fields in reportable" do
         expect(serialized[:reportable]).to include(
           type: "Comment",
-          content: "Spam content here"
+          content: "きれいな虹でした"
         )
       end
 

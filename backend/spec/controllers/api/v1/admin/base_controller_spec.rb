@@ -7,7 +7,7 @@ RSpec.describe Api::V1::Admin::BaseController, type: :request do
 
   # Use an admin endpoint to test base controller behavior
   # Admin photos endpoint: GET /api/v1/admin/photos
-  let(:admin_endpoint) { "/api/v1/admin/photos" }
+  let(:admin_endpoint) { "/api/v1/admin/reports" }
 
   describe "authentication requirement" do
     it "rejects unauthenticated requests" do

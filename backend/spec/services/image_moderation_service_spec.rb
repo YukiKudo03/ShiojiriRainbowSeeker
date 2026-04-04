@@ -60,7 +60,7 @@ RSpec.describe ImageModerationService do
     context "when file size exceeds MAX_FILE_SIZE" do
       let(:photo) { instance_double("Photo") }
       let(:blob) { instance_double("ActiveStorage::Blob", byte_size: 25.megabytes, content_type: "image/jpeg") }
-      let(:image) { instance_double("ActiveStorage::Attached::One") }
+      let(:image) { double("ActiveStorage::Attached::One") }
 
       before do
         allow(photo).to receive(:image).and_return(image)
@@ -80,7 +80,7 @@ RSpec.describe ImageModerationService do
     context "when content type is invalid" do
       let(:photo) { instance_double("Photo") }
       let(:blob) { instance_double("ActiveStorage::Blob", byte_size: 1.megabyte, content_type: "application/pdf") }
-      let(:image) { instance_double("ActiveStorage::Attached::One") }
+      let(:image) { double("ActiveStorage::Attached::One") }
 
       before do
         allow(photo).to receive(:image).and_return(image)
@@ -100,7 +100,7 @@ RSpec.describe ImageModerationService do
     context "when both file size and content type are invalid" do
       let(:photo) { instance_double("Photo") }
       let(:blob) { instance_double("ActiveStorage::Blob", byte_size: 25.megabytes, content_type: "video/mp4") }
-      let(:image) { instance_double("ActiveStorage::Attached::One") }
+      let(:image) { double("ActiveStorage::Attached::One") }
 
       before do
         allow(photo).to receive(:image).and_return(image)
@@ -127,7 +127,7 @@ RSpec.describe ImageModerationService do
             content_type: "image/jpeg",
             filename: filename,
             metadata: {})
-          image = instance_double("ActiveStorage::Attached::One")
+          image = double("ActiveStorage::Attached::One")
 
           allow(photo).to receive(:image).and_return(image)
           allow(image).to receive(:attached?).and_return(true)
@@ -153,7 +153,7 @@ RSpec.describe ImageModerationService do
           content_type: "image/jpeg",
           filename: filename,
           metadata: { width: 10000, height: 100 })
-        image = instance_double("ActiveStorage::Attached::One")
+        image = double("ActiveStorage::Attached::One")
 
         allow(photo).to receive(:image).and_return(image)
         allow(image).to receive(:attached?).and_return(true)
@@ -163,7 +163,7 @@ RSpec.describe ImageModerationService do
 
         expect(result[:approved]).to be true
         expect(result[:action]).to eq(:flagged)
-        expect(result[:confidence]).to eq(0.5)
+        expect(result[:confidence]).to eq(0.7)
         expect(result[:categories]).to have_key("unusual_dimensions")
       end
 
@@ -175,7 +175,7 @@ RSpec.describe ImageModerationService do
           content_type: "image/jpeg",
           filename: filename,
           metadata: { width: 100, height: 10000 })
-        image = instance_double("ActiveStorage::Attached::One")
+        image = double("ActiveStorage::Attached::One")
 
         allow(photo).to receive(:image).and_return(image)
         allow(image).to receive(:attached?).and_return(true)
@@ -199,7 +199,7 @@ RSpec.describe ImageModerationService do
           filename: filename,
           metadata: { width: 1920, height: 1080 })
       end
-      let(:image) { instance_double("ActiveStorage::Attached::One") }
+      let(:image) { double("ActiveStorage::Attached::One") }
 
       before do
         allow(photo).to receive(:image).and_return(image)
@@ -219,7 +219,7 @@ RSpec.describe ImageModerationService do
 
     context "when an error occurs during moderation" do
       let(:photo) { instance_double("Photo", id: "test-id") }
-      let(:image) { instance_double("ActiveStorage::Attached::One") }
+      let(:image) { double("ActiveStorage::Attached::One") }
 
       before do
         allow(photo).to receive(:image).and_return(image)

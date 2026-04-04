@@ -21,7 +21,7 @@ RSpec.describe Photo, type: :model do
   end
 
   describe "enums" do
-    it { is_expected.to define_enum_for(:moderation_status).with_values(pending: 0, approved: 1, hidden: 2, deleted: 3) }
+    it { is_expected.to define_enum_for(:moderation_status).with_values(pending: 0, approved: 1, hidden: 2, deleted: 3, rejected: 4, flagged: 5) }
   end
 
   describe "constants" do

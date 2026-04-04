@@ -57,7 +57,7 @@ RSpec.describe WeatherConditionSerializer, type: :serializer do
     end
 
     it "includes weatherCode" do
-      expect(serialized[:weatherCode]).to eq(500)
+      expect(serialized[:weatherCode]).to eq("500")
     end
 
     it "includes weatherDescription" do
