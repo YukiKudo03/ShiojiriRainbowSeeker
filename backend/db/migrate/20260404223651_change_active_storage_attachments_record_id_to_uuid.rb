@@ -9,7 +9,7 @@ class ChangeActiveStorageAttachmentsRecordIdToUuid < ActiveRecord::Migration[8.0
                   null: false, using: "gen_random_uuid()"
 
     add_index :active_storage_attachments,
-              [:record_type, :record_id, :name, :blob_id],
+              [ :record_type, :record_id, :name, :blob_id ],
               name: "index_active_storage_attachments_uniqueness",
               unique: true
   end
@@ -21,7 +21,7 @@ class ChangeActiveStorageAttachmentsRecordIdToUuid < ActiveRecord::Migration[8.0
     change_column :active_storage_attachments, :record_id, :bigint, null: false
 
     add_index :active_storage_attachments,
-              [:record_type, :record_id, :name, :blob_id],
+              [ :record_type, :record_id, :name, :blob_id ],
               name: "index_active_storage_attachments_uniqueness",
               unique: true
   end

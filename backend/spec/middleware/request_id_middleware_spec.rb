@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe RequestIdMiddleware do
-  let(:app) { ->(env) { [200, {}, ["OK"]] } }
+  let(:app) { ->(env) { [ 200, {}, [ "OK" ] ] } }
   let(:middleware) { described_class.new(app) }
 
   after do
@@ -42,7 +42,7 @@ RSpec.describe RequestIdMiddleware do
       captured_request_id = nil
       capturing_app = lambda do |_env|
         captured_request_id = Thread.current[:request_id]
-        [200, {}, ["OK"]]
+        [ 200, {}, [ "OK" ] ]
       end
 
       capturing_middleware = described_class.new(capturing_app)
@@ -76,7 +76,7 @@ RSpec.describe RequestIdMiddleware do
       captured_env = nil
       env_app = lambda do |env|
         captured_env = env
-        [200, {}, ["OK"]]
+        [ 200, {}, [ "OK" ] ]
       end
 
       env_middleware = described_class.new(env_app)
@@ -91,7 +91,7 @@ RSpec.describe RequestIdMiddleware do
       captured_class_method_value = nil
       capturing_app = lambda do |_env|
         captured_class_method_value = described_class.request_id
-        [200, {}, ["OK"]]
+        [ 200, {}, [ "OK" ] ]
       end
 
       capturing_middleware = described_class.new(capturing_app)

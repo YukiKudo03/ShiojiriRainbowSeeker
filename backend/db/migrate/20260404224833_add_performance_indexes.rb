@@ -15,31 +15,31 @@ class AddPerformanceIndexes < ActiveRecord::Migration[8.0]
               name: "index_photos_on_deleted_at_not_null"
 
     # Comments: pagination by photo ordered by created_at
-    add_index :comments, [:photo_id, :created_at], algorithm: :concurrently,
+    add_index :comments, [ :photo_id, :created_at ], algorithm: :concurrently,
               if_not_exists: true,
               order: { created_at: :desc },
               name: "index_comments_on_photo_id_and_created_at_desc"
 
     # Weather conditions: time-series queries per photo
-    add_index :weather_conditions, [:photo_id, :timestamp], algorithm: :concurrently,
+    add_index :weather_conditions, [ :photo_id, :timestamp ], algorithm: :concurrently,
               if_not_exists: true,
               order: { timestamp: :desc },
               name: "index_weather_conditions_on_photo_timestamp"
 
     # Radar data: time-series queries per photo
-    add_index :radar_data, [:photo_id, :timestamp], algorithm: :concurrently,
+    add_index :radar_data, [ :photo_id, :timestamp ], algorithm: :concurrently,
               if_not_exists: true,
               order: { timestamp: :desc },
               name: "index_radar_data_on_photo_timestamp"
 
     # Notifications: unread notification queries per user
-    add_index :notifications, [:user_id, :is_read, :created_at], algorithm: :concurrently,
+    add_index :notifications, [ :user_id, :is_read, :created_at ], algorithm: :concurrently,
               if_not_exists: true,
               order: { created_at: :desc },
               name: "index_notifications_on_user_read_created"
 
     # Reports: filtering by status
-    add_index :reports, [:status, :created_at], algorithm: :concurrently,
+    add_index :reports, [ :status, :created_at ], algorithm: :concurrently,
               if_not_exists: true,
               order: { created_at: :desc },
               name: "index_reports_on_status_created"

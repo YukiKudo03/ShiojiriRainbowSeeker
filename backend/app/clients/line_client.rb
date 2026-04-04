@@ -45,7 +45,7 @@ class LineClient
 
       payload = {
         to: line_user_id,
-        messages: [build_flex_message(title, body, data)]
+        messages: [ build_flex_message(title, body, data) ]
       }
 
       response = connection.post(PUSH_URL) do |req|
@@ -74,7 +74,7 @@ class LineClient
       line_user_ids.each_slice(MAX_MULTICAST_USERS) do |batch|
         payload = {
           to: batch,
-          messages: [build_flex_message(title, body, data)]
+          messages: [ build_flex_message(title, body, data) ]
         }
 
         response = connection.post(MULTICAST_URL) do |req|
@@ -92,7 +92,7 @@ class LineClient
 
       results
     rescue Faraday::Error => e
-      [{ success: false, error: e.message }]
+      [ { success: false, error: e.message } ]
     end
 
     private

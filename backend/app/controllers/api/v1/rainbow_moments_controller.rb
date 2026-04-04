@@ -12,13 +12,13 @@ module Api
     #
     class RainbowMomentsController < BaseController
       before_action :authenticate_user!
-      before_action :set_moment, only: [:show]
+      before_action :set_moment, only: [ :show ]
 
       # GET /api/v1/rainbow_moments
       # List past moments with pagination.
       def index
-        page = [params.fetch(:page, 1).to_i, 1].max
-        per_page = [params.fetch(:per_page, 20).to_i, 100].min
+        page = [ params.fetch(:page, 1).to_i, 1 ].max
+        per_page = [ params.fetch(:per_page, 20).to_i, 100 ].min
 
         scope = RainbowMoment.recent
         scope = scope.for_location(params[:location_id]) if params[:location_id].present?

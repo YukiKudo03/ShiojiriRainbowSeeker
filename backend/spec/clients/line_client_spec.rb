@@ -198,7 +198,7 @@ RSpec.describe LineClient do
   end
 
   describe ".send_multicast" do
-    let(:line_user_ids) { ["U001", "U002", "U003"] }
+    let(:line_user_ids) { [ "U001", "U002", "U003" ] }
     let(:title) { "Rainbow Alert" }
     let(:body) { "Check the sky!" }
     let(:data) { { type: "rainbow_alert" } }

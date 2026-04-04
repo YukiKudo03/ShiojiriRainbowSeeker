@@ -52,7 +52,7 @@ RSpec.describe ImageProcessingJob, type: :job do
 
       it "rejects photo when moderation returns rejected" do
         job = build_job_with_moderation(
-          approved: false, action: :rejected, reasons: ["Suspicious"], confidence: 0.95, categories: {}
+          approved: false, action: :rejected, reasons: [ "Suspicious" ], confidence: 0.95, categories: {}
         )
         job.perform(photo_with_image.id)
 
@@ -63,7 +63,7 @@ RSpec.describe ImageProcessingJob, type: :job do
 
       it "flags photo when moderation returns flagged" do
         job = build_job_with_moderation(
-          approved: true, action: :flagged, reasons: ["Unusual"], confidence: 0.7, categories: {}
+          approved: true, action: :flagged, reasons: [ "Unusual" ], confidence: 0.7, categories: {}
         )
         # Flagged photos proceed to blob processing which may error on test JPEG.
         # handle_moderation_result runs BEFORE blob.open, so the status update persists.

@@ -216,7 +216,7 @@ class MapService
     # PostGIS ST_ClusterDBSCAN query
     # Note: ST_ClusterDBSCAN uses degrees for the eps parameter when working with geography
     # Values are sanitized via .to_f/.to_i and conn.quote to prevent SQL injection
-    sql = ActiveRecord::Base.sanitize_sql_array([<<~SQL, eps_degrees, safe_min_points])
+    sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL, eps_degrees, safe_min_points ])
       WITH filtered_photos AS (
         SELECT id, location, captured_at, title
         FROM photos
@@ -271,7 +271,7 @@ class MapService
     where_conditions = build_where_conditions(bounds, filters)
 
     # Values are sanitized via .to_f and sanitize_sql_array to prevent SQL injection
-    sql = ActiveRecord::Base.sanitize_sql_array([<<~SQL, grid_degrees, grid_degrees, grid_degrees])
+    sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL, grid_degrees, grid_degrees, grid_degrees ])
       SELECT
         ST_Y(ST_SnapToGrid(location::geometry, ?)) as latitude,
         ST_X(ST_SnapToGrid(location::geometry, ?)) as longitude,

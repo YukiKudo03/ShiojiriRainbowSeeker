@@ -32,9 +32,9 @@ RSpec.describe RainbowMomentLeaveJob, type: :job do
         subscription_id = { channel: "RainbowMomentChannel" }.to_json
         identifiers = double("identifiers")
         allow(identifiers).to receive(:any?).and_return(true)
-        subscriptions = double("subscriptions", identifiers: [subscription_id])
+        subscriptions = double("subscriptions", identifiers: [ subscription_id ])
         allow(connection).to receive(:subscriptions).and_return(subscriptions)
-        allow(ActionCable.server).to receive(:connections).and_return([connection])
+        allow(ActionCable.server).to receive(:connections).and_return([ connection ])
       end
 
       it "does not mark the user as having left" do

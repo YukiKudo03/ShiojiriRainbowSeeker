@@ -21,7 +21,7 @@ module Api
     #   - FR-8: Social Features (AC-8.1〜AC-8.7)
     #
     class SocialController < BaseController
-      REPORTABLE_TYPES = { 'Photo' => Photo, 'Comment' => Comment }.freeze
+      REPORTABLE_TYPES = { "Photo" => Photo, "Comment" => Comment }.freeze
 
       # Authentication required for all actions
       before_action :authenticate_user!

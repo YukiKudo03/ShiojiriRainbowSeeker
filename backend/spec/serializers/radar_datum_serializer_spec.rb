@@ -9,7 +9,7 @@ RSpec.describe RadarDatumSerializer, type: :serializer do
            photo: photo,
            timestamp: Time.zone.parse("2026-03-01 14:30:00"),
            precipitation_intensity: 3.5,
-           precipitation_area: { "type" => "Polygon", "coordinates" => [[0, 0], [1, 1]] },
+           precipitation_area: { "type" => "Polygon", "coordinates" => [ [ 0, 0 ], [ 1, 1 ] ] },
            movement_direction: 225)
   end
 

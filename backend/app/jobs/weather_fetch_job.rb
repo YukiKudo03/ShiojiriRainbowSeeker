@@ -330,23 +330,23 @@ class WeatherFetchJob < ApplicationJob
     # Estimate area radius based on weather code (in degrees, ~1 degree ≈ 111km)
     code = weather_condition.weather_code&.to_i
     radius_deg = case code
-                 when 200..232 then 0.3  # thunderstorms - localized
-                 when 300..321 then 0.5  # drizzle - wider coverage
-                 when 500..531 then 0.4  # rain
-                 when 600..622 then 0.5  # snow - wider coverage
-                 else 0.3
+    when 200..232 then 0.3  # thunderstorms - localized
+    when 300..321 then 0.5  # drizzle - wider coverage
+    when 500..531 then 0.4  # rain
+    when 600..622 then 0.5  # snow - wider coverage
+    else 0.3
     end
 
     # Build a simple bounding box as GeoJSON polygon
     {
       type: "Polygon",
-      coordinates: [[
-        [lng - radius_deg, lat - radius_deg],
-        [lng + radius_deg, lat - radius_deg],
-        [lng + radius_deg, lat + radius_deg],
-        [lng - radius_deg, lat + radius_deg],
-        [lng - radius_deg, lat - radius_deg]
-      ]]
+      coordinates: [ [
+        [ lng - radius_deg, lat - radius_deg ],
+        [ lng + radius_deg, lat - radius_deg ],
+        [ lng + radius_deg, lat + radius_deg ],
+        [ lng - radius_deg, lat + radius_deg ],
+        [ lng - radius_deg, lat - radius_deg ]
+      ] ]
     }
   end
 end

@@ -74,7 +74,7 @@ class Rack::Attack
       }
     }.to_json
 
-    [429, headers, [body]]
+    [ 429, headers, [ body ] ]
   end
 end
 

@@ -2,7 +2,7 @@
 
 namespace :demo do
   desc "Trigger a Rainbow Moment for demo/presentation purposes"
-  task :trigger_moment, [:location_id] => :environment do |_t, args|
+  task :trigger_moment, [ :location_id ] => :environment do |_t, args|
     unless Rails.env.development? || Rails.env.staging?
       puts "ERROR: Demo tasks are only available in development/staging"
       exit 1
@@ -80,7 +80,7 @@ namespace :demo do
       puts "No active Rainbow Moments."
     else
       active.each do |m|
-        remaining = [(m.ends_at - Time.current) / 60, 0].max.round(1)
+        remaining = [ (m.ends_at - Time.current) / 60, 0 ].max.round(1)
         puts "#{m.location_name} [#{m.status.upcase}]"
         puts "  ID:           #{m.id}"
         puts "  Participants: #{m.active_participants_count}"

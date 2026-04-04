@@ -248,10 +248,10 @@ RSpec.describe ImageModerationService do
         approved: true, action: :approved, reasons: [], confidence: 0.0, categories: {}
       })
       allow(service).to receive(:moderate).with(photo2).and_return({
-        approved: false, action: :rejected, reasons: ["Photo is required"], confidence: 1.0, categories: {}
+        approved: false, action: :rejected, reasons: [ "Photo is required" ], confidence: 1.0, categories: {}
       })
 
-      results = service.moderate_batch([photo1, photo2])
+      results = service.moderate_batch([ photo1, photo2 ])
 
       expect(results.length).to eq(2)
       expect(results[0][:photo_id]).to eq("photo-1")

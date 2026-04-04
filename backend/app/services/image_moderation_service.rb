@@ -85,7 +85,7 @@ class ImageModerationService
     {
       approved: true,
       action: :flagged,
-      reasons: ["Moderation check failed - flagged for manual review"],
+      reasons: [ "Moderation check failed - flagged for manual review" ],
       confidence: 0.0,
       error: e.message
     }
@@ -242,7 +242,7 @@ class ImageModerationService
     {
       approved: false,
       action: :rejected,
-      reasons: [message],
+      reasons: [ message ],
       confidence: 1.0,
       categories: {}
     }
