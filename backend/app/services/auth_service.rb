@@ -158,7 +158,7 @@ class AuthService
     return failure_result(
       code: ErrorHandler::ErrorCodes::INVALID_EMAIL,
       message: "Invalid email or password"
-    ) if email.blank?
+    ) if email.blank? || password.blank?
 
     user = User.find_by(email: email.downcase.strip)
 
