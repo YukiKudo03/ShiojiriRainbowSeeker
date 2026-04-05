@@ -50,6 +50,12 @@ prepare_database() {
         ./bin/rails db:prepare
     fi
 
+    # Ensure Solid Cache/Queue/Cable schemas are loaded
+    echo "=> Loading auxiliary database schemas..."
+    ./bin/rails db:schema:load:cache 2>/dev/null || true
+    ./bin/rails db:schema:load:queue 2>/dev/null || true
+    ./bin/rails db:schema:load:cable 2>/dev/null || true
+
     echo "=> Database preparation complete!"
 }
 
