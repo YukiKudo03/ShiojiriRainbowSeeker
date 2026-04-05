@@ -144,6 +144,24 @@ RSpec.describe AuthService, type: :service do
       end
     end
 
+    # Regression: ISSUE-002 — nil email caused NoMethodError on .downcase
+    # Found by /qa on 2026-04-05
+    context "with nil email" do
+      it "returns failure without raising error" do
+        result = service.login(email: nil, password: "password123")
+        expect(result[:success]).to be false
+        expect(result[:error][:code]).to eq(ErrorHandler::ErrorCodes::INVALID_EMAIL)
+      end
+    end
+
+    context "with blank email" do
+      it "returns failure without raising error" do
+        result = service.login(email: "", password: "password123")
+        expect(result[:success]).to be false
+        expect(result[:error][:code]).to eq(ErrorHandler::ErrorCodes::INVALID_EMAIL)
+      end
+    end
+
     context "with non-existent email" do
       it "returns failure with INVALID_EMAIL code" do
         result = service.login(email: "nonexistent@example.com", password: "password123")
