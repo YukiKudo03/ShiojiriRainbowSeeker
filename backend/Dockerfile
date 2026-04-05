@@ -13,7 +13,7 @@
 # =============================================================================
 
 # Ruby version from .ruby-version
-ARG RUBY_VERSION=3.2.2
+ARG RUBY_VERSION=3.4.9
 
 # =============================================================================
 # Stage 1: Base image with runtime dependencies
