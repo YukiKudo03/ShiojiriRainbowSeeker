@@ -155,6 +155,11 @@ class AuthService
   #     refresh_token = result[:data][:tokens][:refresh_token]
   #   end
   def login(email:, password:)
+    return failure_result(
+      code: ErrorHandler::ErrorCodes::INVALID_EMAIL,
+      message: "Invalid email or password"
+    ) if email.blank? || password.blank?
+
     user = User.find_by(email: email.downcase.strip)
 
     # Check if user exists
