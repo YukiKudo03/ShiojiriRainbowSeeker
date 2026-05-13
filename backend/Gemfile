@@ -114,6 +114,8 @@ group :development, :test do
   # ===== Testing =====
   # RSpec for testing
   gem "rspec-rails", "~> 7.1"
+  # JUnit XML output for CI consumption
+  gem "rspec_junit_formatter", "~> 0.6", require: false
   # Factory Bot for test data
   gem "factory_bot_rails", "~> 6.4"
   # Faker for generating fake data

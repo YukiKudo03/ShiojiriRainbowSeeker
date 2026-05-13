@@ -69,6 +69,10 @@ backend/tmp/
 backend/storage/
 backend/coverage/
 backend/vendor/bundle/
+backend/.gstack/
+
+# Mobile
+mobile/coverage/
 
 # ===================
 # Credentials / Secrets

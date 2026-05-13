@@ -38,7 +38,7 @@ on:
         type: boolean
 
 env:
-  RUBY_VERSION: '3.3'
+  RUBY_VERSION: '3.4.9'
 
 jobs:
   # ==========================================================================
@@ -119,6 +119,9 @@ jobs:
 
       - name: Update vulnerability database
         run: bundle exec bundler-audit update
+
+      - name: Ensure tmp directory exists
+        run: mkdir -p tmp
 
       - name: Run bundler-audit
         run: bundle exec bundler-audit check --format json > tmp/bundler_audit_report.json

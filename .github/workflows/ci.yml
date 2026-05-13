@@ -30,7 +30,7 @@ on:
   workflow_dispatch:
 
 env:
-  RUBY_VERSION: '3.2'
+  RUBY_VERSION: '3.4.9'
   RAILS_ENV: test
   DATABASE_URL: postgis://postgres:postgres@localhost:5432/shiojiri_rainbow_seeker_test
 

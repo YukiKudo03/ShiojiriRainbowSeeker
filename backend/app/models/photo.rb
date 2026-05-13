@@ -103,6 +103,7 @@ class Photo < ApplicationRecord
   validates :title, length: { maximum: 100 }, allow_nil: true
   validates :description, length: { maximum: 500 }, allow_nil: true
   validates :captured_at, presence: true
+  validates :location, presence: true
 
   # Image validations
   validate :validate_image_attachment, if: -> { image.attached? }
