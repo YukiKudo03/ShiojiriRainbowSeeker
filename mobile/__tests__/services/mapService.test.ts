@@ -20,6 +20,7 @@ jest.mock('../../src/services/apiClient', () => ({
 }));
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { apiClient } from '../../src/services/apiClient';
 import {
   getMarkers,

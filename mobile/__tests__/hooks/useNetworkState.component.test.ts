@@ -5,8 +5,8 @@
  * the hook with proper React lifecycle.
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react-native';
 import NetInfo from '@react-native-community/netinfo';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 
 const mockedNetInfo = jest.mocked(NetInfo);
 

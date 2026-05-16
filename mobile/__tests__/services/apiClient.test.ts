@@ -8,8 +8,8 @@ import axios, { AxiosError } from 'axios';
 
 // Mock dependencies before importing apiClient
 jest.mock('axios', () => {
-  const requestInterceptors: Array<{ fulfilled: Function; rejected?: Function }> = [];
-  const responseInterceptors: Array<{ fulfilled: Function; rejected?: Function }> = [];
+  const requestInterceptors: Array<{ fulfilled: (...args: any[]) => any; rejected?: (...args: any[]) => any }> = [];
+  const responseInterceptors: Array<{ fulfilled: (...args: any[]) => any; rejected?: (...args: any[]) => any }> = [];
   const mockInstance = {
     interceptors: {
       request: {

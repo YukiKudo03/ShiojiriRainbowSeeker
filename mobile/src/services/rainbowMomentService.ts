@@ -5,6 +5,7 @@
  */
 
 import { apiClient } from './apiClient';
+
 import type { RainbowMoment } from '../store/rainbowMomentStore';
 
 interface PaginationMeta {

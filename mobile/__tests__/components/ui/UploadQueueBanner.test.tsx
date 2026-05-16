@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { render, fireEvent } from '@testing-library/react-native';
 
 // Mock the hooks before importing the component

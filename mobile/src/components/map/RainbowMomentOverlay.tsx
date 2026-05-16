@@ -23,6 +23,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import {
+  subscribeToRainbowMoment,
+  type RainbowMomentMessage,
+} from '../../services/cableService';
+import {
   useActiveMoment,
   useIsParticipating,
   useParticipantCount,
@@ -30,10 +34,6 @@ import {
   useRainbowMomentStore,
   type MomentPhoto,
 } from '../../store/rainbowMomentStore';
-import {
-  subscribeToRainbowMoment,
-  type RainbowMomentMessage,
-} from '../../services/cableService';
 import { accessibleColors, MIN_TOUCH_TARGET_SIZE } from '../../utils/accessibility';
 
 // ============================================
@@ -120,14 +120,14 @@ export const RainbowMomentOverlay: React.FC = () => {
     const handleMessage = (message: RainbowMomentMessage) => {
       switch (message.type) {
         case 'initial_state':
-          if (message.participant_count != null) {
+          if (message.participant_count !== null && message.participant_count !== undefined) {
             store.getState().updateParticipantCount(message.participant_count);
           }
           break;
         case 'participant_joined':
         case 'participant_left':
         case 'participant_count':
-          if (message.participant_count != null) {
+          if (message.participant_count !== null && message.participant_count !== undefined) {
             store.getState().updateParticipantCount(message.participant_count);
           }
           break;

@@ -21,8 +21,9 @@ import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { fetchPastMoments } from '../../services/rainbowMomentService';
-import type { RainbowMoment } from '../../store/rainbowMomentStore';
 import { accessibleColors } from '../../utils/accessibility';
+
+import type { RainbowMoment } from '../../store/rainbowMomentStore';
 
 export const RainbowMomentArchiveScreen: React.FC = () => {
   const { t } = useTranslation();

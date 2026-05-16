@@ -42,8 +42,8 @@ jest.mock('../../src/store/uploadQueueStore', () => ({
   })),
 }));
 
-import { useUploadQueueProcessor } from '../../src/hooks/useUploadQueueProcessor';
 import { useNetworkState } from '../../src/hooks/useNetworkState';
+import { useUploadQueueProcessor } from '../../src/hooks/useUploadQueueProcessor';
 import { uploadPhoto } from '../../src/services/photoService';
 import { useUploadQueueStore } from '../../src/store/uploadQueueStore';
 

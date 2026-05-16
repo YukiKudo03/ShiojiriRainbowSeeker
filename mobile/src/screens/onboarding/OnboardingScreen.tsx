@@ -30,9 +30,9 @@ import {
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useTranslation } from 'react-i18next';
 
 import { Button } from '../../components/ui';
 import { useOnboardingStore } from '../../store/onboardingStore';

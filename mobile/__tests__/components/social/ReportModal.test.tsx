@@ -5,7 +5,9 @@
  */
 
 import React from 'react';
+
 import { Alert } from 'react-native';
+
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 
 jest.mock('../../../src/services/socialService', () => ({
