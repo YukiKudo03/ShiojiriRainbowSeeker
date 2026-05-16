@@ -24,8 +24,8 @@ const mockUseUploadQueueProcessor = jest.fn(() => ({
 }));
 
 jest.mock('../../../src/hooks', () => ({
-  useNetworkState: (...args: unknown[]) => mockUseNetworkState(...args),
-  useUploadQueueProcessor: (...args: unknown[]) => mockUseUploadQueueProcessor(...args),
+  useNetworkState: () => mockUseNetworkState(),
+  useUploadQueueProcessor: () => mockUseUploadQueueProcessor(),
 }));
 
 import { UploadQueueBanner } from '../../../src/components/ui/UploadQueueBanner';

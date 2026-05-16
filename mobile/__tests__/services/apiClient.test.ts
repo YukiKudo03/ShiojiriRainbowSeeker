@@ -4,7 +4,7 @@
  * Tests API client creation, interceptors, token refresh, and error helpers.
  */
 
-import axios, { AxiosError, AxiosHeaders } from 'axios';
+import axios, { AxiosError } from 'axios';
 
 // Mock dependencies before importing apiClient
 jest.mock('axios', () => {
@@ -45,7 +45,7 @@ jest.mock('axios', () => {
       config: any;
       code: string | undefined;
       isAxiosError = true;
-      constructor(message?: string, code?: string, config?: any, request?: any, response?: any) {
+      constructor(message?: string, code?: string, config?: any, _request?: any, response?: any) {
         super(message);
         this.code = code;
         this.config = config;
@@ -84,7 +84,7 @@ describe('apiClient', () => {
 
   describe('createApiClient', () => {
     it('should create an axios instance with correct config', () => {
-      const client = createApiClient();
+      createApiClient();
       expect(axios.create).toHaveBeenCalledWith(
         expect.objectContaining({
           timeout: 30000,

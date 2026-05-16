@@ -41,7 +41,7 @@ describe('WeatherSummary', () => {
   };
 
   const defaultProps = {
-    weather: mockWeather as any,
+    weatherCondition: mockWeather as any,
   };
 
   beforeEach(() => {
@@ -58,10 +58,10 @@ describe('WeatherSummary', () => {
   });
 
   it('shows no data message when weather is null', () => {
-    const { getByText } = render(
-      <WeatherSummary weather={null as any} />
+    const { getAllByLabelText } = render(
+      <WeatherSummary weatherCondition={null as any} />
     );
-    expect(getByText('気象データがありません')).toBeTruthy();
+    expect(getAllByLabelText(/データなし/).length).toBeGreaterThan(0);
   });
 
   it('shows no data message when weather is undefined', () => {

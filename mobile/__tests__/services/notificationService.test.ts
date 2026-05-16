@@ -388,7 +388,7 @@ describe('notificationService', () => {
         mockSubscription as any
       );
 
-      const cleanup = setupNotificationListeners(undefined, onResponse);
+      setupNotificationListeners(undefined, onResponse);
 
       expect(mockedNotifications.addNotificationResponseReceivedListener).toHaveBeenCalledWith(onResponse);
     });

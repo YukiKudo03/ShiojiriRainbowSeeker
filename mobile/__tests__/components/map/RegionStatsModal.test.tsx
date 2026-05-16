@@ -8,7 +8,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 
 jest.mock('date-fns', () => ({
-  format: (date: any, fmt: string) => '2026年3月1日',
+  format: () => '2026年3月1日',
 }));
 
 jest.mock('date-fns/locale', () => ({

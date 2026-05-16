@@ -46,7 +46,7 @@ gem "rack-attack", "~> 6.7"
 
 # ===== Authentication =====
 # Devise for user authentication
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0", ">= 5.0.4"
 # JWT support for Devise (API authentication)
 gem "devise-jwt", "~> 0.12"
 

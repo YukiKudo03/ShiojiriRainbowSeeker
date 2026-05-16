@@ -15,7 +15,7 @@ jest.mock('expo-image', () => ({
 }));
 
 jest.mock('date-fns', () => ({
-  format: (date: any, fmt: string) => '2026年1月15日',
+  format: () => '2026年1月15日',
 }));
 
 jest.mock('date-fns/locale', () => ({

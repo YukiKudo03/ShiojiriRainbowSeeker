@@ -31,7 +31,6 @@ import { useTranslation } from 'react-i18next';
 
 import {
   MIN_TOUCH_TARGET_SIZE,
-  formatNumberForScreenReader,
   createScreenReaderAnnouncement,
 } from '../../utils/accessibility';
 
@@ -91,8 +90,8 @@ const PhotoCardComponent: React.FC<PhotoCardProps> = ({
     t('photo.postedBy', { name: photo.user.displayName }),
     photo.location?.name && t('photo.locationLabel', { name: photo.location.name }),
     t('photo.dateLabel', { date: formatDate(photo.capturedAt) }),
-    t('photo.likesCount', { count: formatNumberForScreenReader(photo.likeCount) }),
-    t('photo.commentsCount', { count: formatNumberForScreenReader(photo.commentCount) }),
+    t('photo.likesCount', { count: photo.likeCount }),
+    t('photo.commentsCount', { count: photo.commentCount }),
     t('photo.doubleTapForDetail')
   );
 

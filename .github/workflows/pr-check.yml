@@ -11,8 +11,6 @@ name: PR Check
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  pull_request_target:
-    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
@@ -157,11 +155,9 @@ jobs:
         run: bundle exec rspec --format progress
 
       - name: Security scan
-        # CVE-2026-32700 (devise) requires devise 5.0.3+ (major bump); tracked
-        # for a follow-up PR.
         run: |
           bundle exec brakeman --no-pager -q
-          bundle exec bundler-audit check --update --ignore CVE-2026-32700
+          bundle exec bundler-audit check --update
 
   # ==========================================================================
   # Mobile Checks

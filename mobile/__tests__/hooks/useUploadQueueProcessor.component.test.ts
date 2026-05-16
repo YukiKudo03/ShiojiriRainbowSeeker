@@ -24,7 +24,7 @@ jest.mock('../../src/services/photoService', () => ({
   })),
 }));
 
-const mockGetNextPending = jest.fn(() => null);
+const mockGetNextPending: jest.Mock<unknown, []> = jest.fn(() => null);
 const mockUpdateStatus = jest.fn();
 const mockIncrementRetryCount = jest.fn();
 const mockSetProcessing = jest.fn();
