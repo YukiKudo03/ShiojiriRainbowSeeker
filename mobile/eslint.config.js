@@ -167,9 +167,9 @@ module.exports = [
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },
-  // Override for JS config files
+  // Override for JS config/mock files (no TS project)
   {
-    files: ['*.js'],
+    files: ['**/*.js'],
     languageOptions: {
       parserOptions: {
         project: null,

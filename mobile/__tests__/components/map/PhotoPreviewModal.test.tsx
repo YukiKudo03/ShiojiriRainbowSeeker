@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+
 import { render, fireEvent } from '@testing-library/react-native';
 
 jest.mock('expo-image', () => ({
@@ -15,7 +16,7 @@ jest.mock('expo-image', () => ({
 }));
 
 jest.mock('date-fns', () => ({
-  format: (date: any, fmt: string) => '2026年1月15日',
+  format: () => '2026年1月15日',
 }));
 
 jest.mock('date-fns/locale', () => ({

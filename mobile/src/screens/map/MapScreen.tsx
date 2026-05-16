@@ -63,12 +63,12 @@ import {
   getRegionAtLocation,
   DEFAULT_REGION,
 } from '../../services/mapService';
+import { fetchActiveMoments } from '../../services/rainbowMomentService';
+import { useRainbowMomentStore } from '../../store/rainbowMomentStore';
 import {
   accessibleColors,
   MIN_TOUCH_TARGET_SIZE,
 } from '../../utils/accessibility';
-import { useRainbowMomentStore } from '../../store/rainbowMomentStore';
-import { fetchActiveMoments } from '../../services/rainbowMomentService';
 
 import type { MapScreenProps } from '../../types/navigation';
 

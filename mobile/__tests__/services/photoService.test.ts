@@ -84,6 +84,7 @@ jest.mock('../../src/services/apiClient', () => ({
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
+import { apiClient } from '../../src/services/apiClient';
 import {
   requestCameraPermission,
   requestMediaLibraryPermission,
@@ -105,7 +106,6 @@ import {
   getPhotoWeather,
   getMyPhotos,
 } from '../../src/services/photoService';
-import { apiClient } from '../../src/services/apiClient';
 
 const mockedApiClient = jest.mocked(apiClient);
 

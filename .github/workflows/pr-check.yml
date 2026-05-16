@@ -11,8 +11,6 @@ name: PR Check
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  pull_request_target:
-    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
@@ -127,6 +125,7 @@ jobs:
       DATABASE_PORT: 5432
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      DEVISE_JWT_SECRET_KEY: test-secret-key-for-ci-only
 
     steps:
       - name: Checkout code
@@ -135,14 +134,14 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          ruby-version: '3.4.9'
           bundler-cache: true
           working-directory: backend
 
-      - name: Install PostgreSQL client
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y postgresql-client libpq-dev
+          sudo apt-get install -y postgresql-client libpq-dev libvips42
 
       - name: Lint
         run: bundle exec rubocop --format github

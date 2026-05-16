@@ -24,7 +24,7 @@ jest.mock('../../src/services/photoService', () => ({
   })),
 }));
 
-const mockGetNextPending = jest.fn(() => null);
+const mockGetNextPending: jest.Mock<unknown, []> = jest.fn(() => null);
 const mockUpdateStatus = jest.fn();
 const mockIncrementRetryCount = jest.fn();
 const mockSetProcessing = jest.fn();
@@ -42,8 +42,8 @@ jest.mock('../../src/store/uploadQueueStore', () => ({
   })),
 }));
 
-import { useUploadQueueProcessor } from '../../src/hooks/useUploadQueueProcessor';
 import { useNetworkState } from '../../src/hooks/useNetworkState';
+import { useUploadQueueProcessor } from '../../src/hooks/useUploadQueueProcessor';
 import { uploadPhoto } from '../../src/services/photoService';
 import { useUploadQueueStore } from '../../src/store/uploadQueueStore';
 

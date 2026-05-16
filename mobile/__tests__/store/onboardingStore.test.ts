@@ -6,6 +6,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { useOnboardingStore } from '../../src/store/onboardingStore';
 
 const mockedAsyncStorage = jest.mocked(AsyncStorage);

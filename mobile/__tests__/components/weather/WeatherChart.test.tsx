@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+
 import { render } from '@testing-library/react-native';
 
 jest.mock('../../../src/utils/accessibility', () => ({

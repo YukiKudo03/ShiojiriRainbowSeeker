@@ -110,7 +110,8 @@ describe('useNetworkState - NetInfo integration', () => {
     });
 
     it('should handle null isConnected as false', () => {
-      const isConnected = null ?? false;
+      const raw: boolean | null = null;
+      const isConnected = raw ?? false;
       expect(isConnected).toBe(false);
     });
   });

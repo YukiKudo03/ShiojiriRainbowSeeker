@@ -7,14 +7,15 @@
  */
 
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react-native';
+
+import { render, fireEvent } from '@testing-library/react-native';
 
 jest.mock('expo-image', () => ({
   Image: 'ExpoImage',
 }));
 
 jest.mock('date-fns', () => ({
-  format: (date: any, fmt: string) => {
+  format: (date: any) => {
     if (isNaN(date.getTime())) throw new Error('Invalid date');
     return '2026年1月15日';
   },

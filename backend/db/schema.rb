@@ -10,31 +10,31 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_04_224908) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_04_224908) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
   enable_extension "postgis"
 
   create_table "active_storage_attachments", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "record_type", null: false
-    t.uuid "record_id", null: false
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.uuid "record_id", null: false
+    t.string "record_type", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
   create_table "active_storage_blobs", force: :cascade do |t|
-    t.string "key", null: false
-    t.string "filename", null: false
-    t.string "content_type"
-    t.text "metadata"
-    t.string "service_name", null: false
     t.bigint "byte_size", null: false
     t.string "checksum"
+    t.string "content_type"
     t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
@@ -45,13 +45,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_224908) do
   end
 
   create_table "comments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_id"
-    t.uuid "photo_id", null: false
     t.text "content", null: false
-    t.boolean "is_visible", default: true
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.string "deleted_user_display_name"
+    t.boolean "is_visible", default: true
+    t.uuid "photo_id", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id"
     t.index ["deleted_user_display_name"], name: "index_comments_on_deleted_user_display_name", where: "(deleted_user_display_name IS NOT NULL)"
     t.index ["photo_id", "created_at"], name: "index_comments_on_photo_id_and_created_at_desc", order: { created_at: :desc }
     t.index ["photo_id"], name: "index_comments_on_photo_id"
@@ -59,60 +59,60 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_224908) do
   end
 
   create_table "device_tokens", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_id", null: false
-    t.string "token", null: false
-    t.string "platform", null: false
-    t.boolean "is_active", default: true
     t.datetime "created_at", null: false
+    t.boolean "is_active", default: true
+    t.string "platform", null: false
+    t.string "token", null: false
     t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
     t.index ["token"], name: "index_device_tokens_on_token", unique: true
     t.index ["user_id"], name: "index_device_tokens_on_user_id"
   end
 
   create_table "jwt_denylists", force: :cascade do |t|
-    t.string "jti", null: false
     t.datetime "exp", null: false
+    t.string "jti", null: false
     t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
   create_table "likes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_id", null: false
-    t.uuid "photo_id", null: false
     t.datetime "created_at"
+    t.uuid "photo_id", null: false
+    t.uuid "user_id", null: false
     t.index ["photo_id"], name: "index_likes_on_photo_id"
     t.index ["user_id", "photo_id"], name: "index_likes_on_user_id_and_photo_id", unique: true
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
 
   create_table "notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_id", null: false
-    t.integer "notification_type", null: false
-    t.string "title"
     t.text "body"
+    t.datetime "created_at", null: false
     t.jsonb "data", default: {}
     t.boolean "is_read", default: false
-    t.datetime "created_at", null: false
+    t.integer "notification_type", null: false
+    t.string "title"
     t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
     t.index ["user_id", "is_read", "created_at"], name: "index_notifications_on_user_read_created", order: { created_at: :desc }
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "photos", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_id", null: false
-    t.string "title", limit: 100
-    t.text "description"
-    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}, null: false
-    t.decimal "altitude"
     t.decimal "accuracy"
-    t.string "location_name"
+    t.decimal "altitude"
     t.datetime "captured_at", null: false
-    t.integer "like_count", default: 0
     t.integer "comment_count", default: 0
-    t.boolean "is_visible", default: true
-    t.integer "moderation_status", default: 1
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.datetime "deleted_at"
+    t.text "description"
+    t.boolean "is_visible", default: true
+    t.integer "like_count", default: 0
+    t.geography "location", limit: {srid: 4326, type: "st_point", geographic: true}, null: false
+    t.string "location_name"
+    t.integer "moderation_status", default: 1
+    t.string "title", limit: 100
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
     t.index ["captured_at"], name: "index_photos_on_captured_at"
     t.index ["deleted_at"], name: "index_photos_on_deleted_at_not_null", where: "(deleted_at IS NOT NULL)"
     t.index ["location"], name: "index_photos_on_location", using: :gist
@@ -121,41 +121,41 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_224908) do
   end
 
   create_table "radar_data", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "photo_id", null: false
-    t.datetime "timestamp", null: false
-    t.geography "center_location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
-    t.decimal "radius"
-    t.decimal "precipitation_intensity"
-    t.jsonb "precipitation_area"
+    t.geography "center_location", limit: {srid: 4326, type: "st_point", geographic: true}
+    t.datetime "created_at"
     t.decimal "movement_direction"
     t.decimal "movement_speed"
-    t.datetime "created_at"
+    t.uuid "photo_id", null: false
+    t.jsonb "precipitation_area"
+    t.decimal "precipitation_intensity"
+    t.decimal "radius"
+    t.datetime "timestamp", null: false
     t.index ["photo_id", "timestamp"], name: "index_radar_data_on_photo_timestamp", order: { timestamp: :desc }
     t.index ["photo_id"], name: "index_radar_data_on_photo_id"
   end
 
   create_table "rainbow_moment_participations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "rainbow_moment_id", null: false
-    t.uuid "user_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "joined_at", null: false
     t.datetime "left_at"
-    t.datetime "created_at", null: false
+    t.uuid "rainbow_moment_id", null: false
     t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
     t.index ["rainbow_moment_id", "user_id"], name: "idx_moment_participations_unique", unique: true
     t.index ["rainbow_moment_id"], name: "index_rainbow_moment_participations_on_rainbow_moment_id"
     t.index ["user_id"], name: "index_rainbow_moment_participations_on_user_id"
   end
 
   create_table "rainbow_moments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.datetime "starts_at", null: false
+    t.datetime "created_at", null: false
     t.datetime "ends_at", null: false
     t.string "location_id", null: false
-    t.string "status", default: "active", null: false
-    t.jsonb "weather_snapshot", default: {}
     t.integer "participants_count", default: 0, null: false
     t.integer "photos_count", default: 0, null: false
-    t.datetime "created_at", null: false
+    t.datetime "starts_at", null: false
+    t.string "status", default: "active", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "weather_snapshot", default: {}
     t.index ["location_id"], name: "index_rainbow_moments_on_location_id"
     t.index ["location_id"], name: "index_rainbow_moments_unique_active_per_location", unique: true, where: "((status)::text = 'active'::text)"
     t.index ["starts_at"], name: "index_rainbow_moments_on_starts_at"
@@ -163,14 +163,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_224908) do
   end
 
   create_table "reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "reporter_id", null: false
-    t.string "reportable_type", null: false
-    t.uuid "reportable_id", null: false
-    t.uuid "resolved_by_id"
-    t.integer "status", default: 0
-    t.text "reason"
     t.text "admin_note"
     t.datetime "created_at", null: false
+    t.text "reason"
+    t.uuid "reportable_id", null: false
+    t.string "reportable_type", null: false
+    t.uuid "reporter_id", null: false
+    t.uuid "resolved_by_id"
+    t.integer "status", default: 0
     t.datetime "updated_at", null: false
     t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable_type_and_reportable_id"
     t.index ["reporter_id"], name: "index_reports_on_reporter_id"
@@ -179,30 +179,30 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_224908) do
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "email", null: false
-    t.string "encrypted_password", null: false
-    t.string "display_name", limit: 30, null: false
-    t.integer "role", default: 0
-    t.jsonb "notification_settings", default: {}
-    t.string "locale", limit: 5, default: "ja"
-    t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "confirmation_sent_at"
     t.string "confirmation_token"
     t.datetime "confirmed_at"
-    t.datetime "confirmation_sent_at"
-    t.string "unconfirmed_email"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.datetime "deleted_at"
-    t.integer "failed_attempts", default: 0, null: false
-    t.datetime "locked_at"
-    t.boolean "violation_flagged", default: false, null: false
-    t.integer "violation_count", default: 0, null: false
+    t.string "deletion_job_id"
     t.datetime "deletion_requested_at"
     t.datetime "deletion_scheduled_at"
-    t.string "deletion_job_id"
+    t.string "display_name", limit: 30, null: false
+    t.string "email", null: false
+    t.string "encrypted_password", null: false
+    t.integer "failed_attempts", default: 0, null: false
     t.string "line_user_id"
+    t.string "locale", limit: 5, default: "ja"
+    t.datetime "locked_at"
+    t.jsonb "notification_settings", default: {}
+    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
+    t.integer "role", default: 0
+    t.string "unconfirmed_email"
+    t.datetime "updated_at", null: false
+    t.integer "violation_count", default: 0, null: false
+    t.boolean "violation_flagged", default: false, null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["deletion_scheduled_at"], name: "index_users_on_deletion_scheduled_at", where: "(deletion_scheduled_at IS NOT NULL)"
     t.index ["email"], name: "index_users_on_email", unique: true
@@ -212,24 +212,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_224908) do
   end
 
   create_table "weather_conditions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "photo_id", null: false
-    t.uuid "radar_datum_id"
-    t.datetime "timestamp", null: false
-    t.decimal "temperature"
+    t.decimal "cloud_cover"
+    t.datetime "created_at"
     t.decimal "humidity"
-    t.decimal "pressure"
-    t.string "weather_code"
-    t.string "weather_description"
-    t.decimal "wind_speed"
-    t.decimal "wind_direction"
-    t.decimal "wind_gust"
+    t.uuid "photo_id", null: false
     t.decimal "precipitation"
     t.string "precipitation_type"
-    t.decimal "cloud_cover"
-    t.decimal "visibility"
-    t.decimal "sun_azimuth"
+    t.decimal "pressure"
+    t.uuid "radar_datum_id"
     t.decimal "sun_altitude"
-    t.datetime "created_at"
+    t.decimal "sun_azimuth"
+    t.decimal "temperature"
+    t.datetime "timestamp", null: false
+    t.decimal "visibility"
+    t.string "weather_code"
+    t.string "weather_description"
+    t.decimal "wind_direction"
+    t.decimal "wind_gust"
+    t.decimal "wind_speed"
     t.index ["photo_id", "timestamp"], name: "index_weather_conditions_on_photo_timestamp", order: { timestamp: :desc }
     t.index ["photo_id"], name: "index_weather_conditions_on_photo_id"
     t.index ["radar_datum_id"], name: "index_weather_conditions_on_radar_datum_id"

@@ -6,6 +6,7 @@
  */
 
 import { useRainbowMomentStore } from '../../src/store/rainbowMomentStore';
+
 import type { RainbowMoment, MomentPhoto } from '../../src/store/rainbowMomentStore';
 
 const mockMoment: RainbowMoment = {

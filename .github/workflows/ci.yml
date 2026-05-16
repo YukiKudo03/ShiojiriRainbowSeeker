@@ -30,7 +30,7 @@ on:
   workflow_dispatch:
 
 env:
-  RUBY_VERSION: '3.2'
+  RUBY_VERSION: '3.4.9'
   RAILS_ENV: test
   DATABASE_URL: postgis://postgres:postgres@localhost:5432/shiojiri_rainbow_seeker_test
 
@@ -101,6 +101,7 @@ jobs:
       DATABASE_PORT: 5432
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      DEVISE_JWT_SECRET_KEY: test-secret-key-for-ci-only
 
     steps:
       - name: Checkout code
@@ -113,10 +114,10 @@ jobs:
           bundler-cache: true
           working-directory: backend
 
-      - name: Install PostgreSQL client
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y postgresql-client libpq-dev
+          sudo apt-get install -y postgresql-client libpq-dev libvips42
 
       - name: Wait for PostgreSQL
         run: |

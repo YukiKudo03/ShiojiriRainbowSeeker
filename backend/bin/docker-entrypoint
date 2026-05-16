@@ -50,6 +50,17 @@ prepare_database() {
         ./bin/rails db:prepare
     fi
 
+    # Load auxiliary database schemas only if tables are missing (safe for restarts)
+    echo "=> Checking auxiliary database schemas..."
+    for db_name in cache queue cable; do
+        if ! ./bin/rails "db:version:${db_name}" > /dev/null 2>&1; then
+            echo "=> Loading ${db_name} schema..."
+            ./bin/rails "db:schema:load:${db_name}" 2>&1 || echo "=> Warning: ${db_name} schema load failed"
+        else
+            echo "=> ${db_name} database already initialized"
+        fi
+    done
+
     echo "=> Database preparation complete!"
 }
 

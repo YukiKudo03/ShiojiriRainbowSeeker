@@ -45,14 +45,8 @@ RSpec.describe ContentValidator do
   describe "class methods" do
     describe ".configuration" do
       context "when config file does not exist" do
-        let(:original_root) { Rails.root }
-
         before do
-          Rails.root = "/nonexistent/path"
-        end
-
-        after do
-          Rails.root = original_root.to_s
+          allow(Rails).to receive(:root).and_return(Pathname.new("/nonexistent/path"))
         end
 
         it "returns default config" do
@@ -66,7 +60,6 @@ RSpec.describe ContentValidator do
 
       context "when config file exists" do
         let(:temp_dir) { Dir.mktmpdir }
-        let(:original_root) { Rails.root }
         let(:config_content) do
           {
             "settings" => { "enabled" => true },
@@ -80,11 +73,10 @@ RSpec.describe ContentValidator do
         before do
           FileUtils.mkdir_p(File.join(temp_dir, "config"))
           File.write(File.join(temp_dir, "config", "banned_words.yml"), config_content)
-          Rails.root = temp_dir
+          allow(Rails).to receive(:root).and_return(Pathname.new(temp_dir))
         end
 
         after do
-          Rails.root = original_root.to_s
           FileUtils.rm_rf(temp_dir)
         end
 
