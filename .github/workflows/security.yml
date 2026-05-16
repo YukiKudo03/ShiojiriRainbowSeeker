@@ -124,7 +124,10 @@ jobs:
         run: mkdir -p tmp
 
       - name: Run bundler-audit
-        run: bundle exec bundler-audit check --format json > tmp/bundler_audit_report.json
+        # CVE-2026-32700 (devise) requires devise 5.0.3+ (major bump); tracked
+        # separately for a follow-up PR. Confirmable email-change race condition,
+        # medium severity.
+        run: bundle exec bundler-audit check --ignore CVE-2026-32700 --format json > tmp/bundler_audit_report.json
 
       - name: Upload Audit Report
         if: always()
